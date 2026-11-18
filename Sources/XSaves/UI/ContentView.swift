@@ -9,6 +9,17 @@ struct ContentView: View {
             Group {
                 if model.posts.isEmpty { empty } else { GridView(model: model) }
             }
+            .inspector(isPresented: $model.inspectorShown) {
+                InspectorView(model: model).inspectorColumnWidth(min: 260, ideal: 300, max: 420)
+            }
+            .toolbar {
+                if model.inspectorShown, let post = model.selected {
+                    Button("Open on X", systemImage: "arrow.up.forward.square") {
+                        if let url = URL(string: "https://x.com/\(post.content.handle)/status/\(post.id)") { NSWorkspace.shared.open(url) }
+                    }
+                }
+                Button("Inspector", systemImage: "sidebar.trailing") { model.inspectorShown.toggle() }
+            }
             .navigationTitle(model.title)
             .navigationSubtitle(model.listCount == 0 ? "" : "\(model.listCount) \(model.listCount == 1 ? "save" : "saves")")
             .searchable(text: $model.search, placement: .toolbar, prompt: "Search")

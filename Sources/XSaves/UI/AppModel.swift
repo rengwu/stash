@@ -113,3 +113,34 @@ extension MediaView {
         return min(1.6, max(0.4, CGFloat(height) / CGFloat(width)))
     }
 }
+
+extension AppModel {
+    func setBoard(_ board: Int64, post id: String, on: Bool) async {
+        guard let store else { return }
+        do {
+            try await store.setPost(id, inBoard: board, on)
+            if sidebar == .board(board) && !on { await reload(); return }
+            if let i = posts.firstIndex(where: { $0.id == id }) {
+                if on { posts[i].boards.insert(board) } else { posts[i].boards.remove(board) }
+            }
+            boards = try await store.boards()
+        } catch { self.error = error.localizedDescription }
+    }
+    func finishBoard() {
+        guard let name = newBoardName?.trimmingCharacters(in: .whitespacesAndNewlines) else { return }
+        newBoardName = nil
+        guard !name.isEmpty, let store else { return }
+        Task {
+            do { try await store.createBoard(name); boards = try await store.boards() }
+            catch { self.error = error.localizedDescription }
+        }
+    }
+    func deleteBoard(_ board: Board) async {
+        guard let store else { return }
+        do {
+            try await store.deleteBoard(board.id)
+            if sidebar == .board(board.id) { sidebar = .all }
+            await reload()
+        } catch { self.error = error.localizedDescription }
+    }
+}

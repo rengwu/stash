@@ -11,7 +11,9 @@ struct XSavesApp: App {
         Window("xsaves", id: "main") { ContentView(model: model) }
             .defaultSize(width: 1200, height: 860)
             .commands {
-                CommandGroup(replacing: .newItem) {}
+                CommandGroup(replacing: .newItem) {
+                    Button("New Board") { model.newBoardName = "" }.keyboardShortcut("n", modifiers: [.command, .shift])
+                }
                 SidebarCommands()
                 InspectorCommands()
             }

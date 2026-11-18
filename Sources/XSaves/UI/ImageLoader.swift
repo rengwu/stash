@@ -28,7 +28,7 @@ struct Thumbnail: View {
         GeometryReader { geo in
             let size = max(1, Int(ceil(geo.size.width * 2)))
             ZStack {
-                Rectangle().fill(.quaternary)
+                Color.clear
                 if let image {
                     Image(decorative: image, scale: 1).resizable().scaledToFill()
                 }

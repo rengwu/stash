@@ -4,12 +4,12 @@ import XSavesCore
 struct GridView: View {
     let model: AppModel
     var body: some View {
+        let columns = model.columns, posts = model.posts
         ScrollView {
             HStack(alignment: .top, spacing: 12) {
-                ForEach(model.columns.indices, id: \.self) { col in
+                ForEach(columns.indices, id: \.self) { col in
                     LazyVStack(spacing: 12) {
-                        ForEach(model.columns[col], id: \.self) { index in
-                            let post = model.posts[index]
+                        ForEach(columns[col].map { (index: $0, post: posts[$0]) }, id: \.post.id) { index, post in
                             Button { model.select(post.id) } label: {
                                 CardView(post: post)
                             }
@@ -37,7 +37,11 @@ struct CardView: View {
         VStack(alignment: .leading, spacing: 0) {
             let media = post.content.media.filter { $0.file != nil }
             if let first = media.first {
-                Thumbnail(url: first.type == .photo ? first.file : first.poster)
+                Group {
+                    if first.type == .animatedGIF, let url = first.file {
+                        MediaPlayer(url: url, looping: true).id(url).allowsHitTesting(false)
+                    } else { Thumbnail(url: first.type == .photo ? first.file : first.poster) }
+                }
                     .aspectRatio(1 / first.heightRatio, contentMode: .fit)
                     .overlay {
                         if first.type == .video {
