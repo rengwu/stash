@@ -9,28 +9,20 @@ struct ContentView: View {
             Group {
                 if model.posts.isEmpty { empty } else { GridView(model: model) }
             }
-            .inspector(isPresented: $model.inspectorShown) {
-                InspectorView(model: model).inspectorColumnWidth(min: 260, ideal: 300, max: 420)
-            }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     if let p = model.sync {
                         let total = p.bookmarks + p.likes
-                        HStack {
+                        HStack(spacing: 6) {
                             ProgressView().controlSize(.small)
                             Text(total == 0 ? "Syncing" : "\(total) new").monospacedDigit()
-                        }.help("Syncing: \(total) new posts, \(p.media) files left to download")
+                        }
+                        .padding(.horizontal, 8)
+                        .fixedSize()
+                        .help("Syncing: \(total) new posts, \(p.media) files left to download")
                     } else {
                         Button("Sync", systemImage: "arrow.clockwise") { model.startSync() }.help("Sync")
                     }
-                }
-                ToolbarItemGroup {
-                    if model.inspectorShown, let post = model.selected {
-                        Button("Open on X", systemImage: "arrow.up.forward.square") {
-                            if let url = URL(string: "https://x.com/\(post.content.handle)/status/\(post.id)") { NSWorkspace.shared.open(url) }
-                        }
-                    }
-                    Button("Inspector", systemImage: "sidebar.trailing") { model.inspectorShown.toggle() }
                 }
             }
             .navigationTitle(model.title)
@@ -38,6 +30,9 @@ struct ContentView: View {
             .searchable(text: $model.search, placement: .toolbar, prompt: "Search")
         }
         .frame(minWidth: 760, minHeight: 480)
+        .sheet(isPresented: Binding(get: { model.selection != nil }, set: { if !$0 { model.selection = nil } })) {
+            if let post = model.selected { PostGalleryView(model: model, post: post) }
+        }
         .task { await model.open() }
         .onChange(of: model.sidebar) { if model.ready { Task { await model.reload() } } }
         .onChange(of: model.search) { model.searchChanged() }
@@ -59,7 +54,7 @@ struct ContentView: View {
             switch model.sidebar {
             case .bookmarks: ContentUnavailableView("No Bookmarks", systemImage: "bookmark", description: Text("Sync fetches the posts you bookmark on X."))
             case .likes: ContentUnavailableView("No Likes", systemImage: "heart", description: Text("Sync fetches the posts you like on X."))
-            case .board: ContentUnavailableView("No Posts in \(model.title)", systemImage: "rectangle.stack", description: Text("Select a post and tick \(model.title) in the inspector."))
+            case .board: ContentUnavailableView("No Posts in \(model.title)", systemImage: "rectangle.stack", description: Text("Select a post and tick \(model.title) in the gallery."))
             case .all: EmptyView()
             }
         }

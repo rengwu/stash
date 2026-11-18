@@ -26,9 +26,15 @@ struct SidebarView: View {
                 HStack {
                     Text("Boards")
                     Spacer()
-                    Button("New Board", systemImage: "plus") { model.newBoardName = "" }
-                        .labelStyle(.iconOnly).buttonStyle(.borderless).help("New Board")
-                }
+                    Button { model.newBoardName = "" } label: {
+                        Image(systemName: "plus")
+                            .frame(width: 24, height: 24)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel("New Board")
+                    .help("New Board")
+                }.padding(.trailing, 4)
             }
         }.listStyle(.sidebar)
         .confirmationDialog("Delete the board “\(model.deleting?.name ?? "")”?", isPresented: Binding(

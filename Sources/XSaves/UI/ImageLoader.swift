@@ -23,6 +23,7 @@ actor ImageLoader {
 
 struct Thumbnail: View {
     let url: URL?
+    var mode: ContentMode = .fill
     @ViewState private var image: CGImage?
     var body: some View {
         GeometryReader { geo in
@@ -30,7 +31,7 @@ struct Thumbnail: View {
             ZStack {
                 Color.clear
                 if let image {
-                    Image(decorative: image, scale: 1).resizable().scaledToFill()
+                    Image(decorative: image, scale: 1).resizable().aspectRatio(contentMode: mode)
                 }
             }
             .frame(width: geo.size.width, height: geo.size.height).clipped()

@@ -2,7 +2,7 @@
 title: Plan
 section: Planning
 updated: 2026-11-18
-status: SwiftUI app installed for live verification
+status: SwiftUI gallery installed, attended sync in progress
 ---
 # Plan
 
@@ -44,6 +44,8 @@ Submitted through grill-form on 2026-11-18. The user asked to redesign the app w
 
 Choices made during implementation, under the decisions above.
 
+- On 2026-11-18 the user revised Round 2: keep the left library sidebar and open post details in a gallery sheet. The grid uses the remaining width.
+
 - The Swift grid captures the posts and column indices together so a resizing inspector can finish rendering the previous layout. Approaching the scroll bottom also requests a page, because masonry columns can end at different heights.
 - SwiftPM loads the CLT’s bundled Swift Testing macro explicitly for the test target. Incremental builds sometimes omitted it.
 - Unbundled Swift sync exits before opening WebKit so a terminal run cannot inherit the Go window’s sign-in.
@@ -72,6 +74,7 @@ Checked on 2026-11-17 against the uncommitted working tree, on the user's own ac
 | Boards | Passed on generated data only |
 | Sign-in window flow | Passed once, by the user |
 | Background schedule (launchd agent) | Untested |
+| Swift gallery and live checks (2026-11-18) | Opening a card, paging to item 2 of 4 and dismissing with Escape passed. The left sidebar remained present. Signed-out sync exited 1 in 3.86 seconds with matching JSON and stderr. The live launchd agent repointed to Swift on first launch. |
 | Swift M5 (2026-11-18) | Six Swift tests passed, including launchd success and failure with a fake runner. A stub child displayed 4 new and 12 files left, then the expected error alert. Settings and startup UI overrides worked. Installed bundle passed codesign verification. |
 | Swift M4 (2026-11-18) | Verified board creation, ticking three posts, filtering, unticking, confirming deletion and returning to 2,820 saves on the backup. Verified dark appearance, gallery buttons and right-arrow paging. A video started paused and unmuted and advanced after Play. A GIF advanced muted. Checking audible output, a full loop and Open on X remains part of the attended check. |
 | Swift M3 (2026-11-18) | Bundled window on backup showed 2,820 / 807 / 2,506. Typing swift returned 11 saves. Unmatched search displayed the system no-results view. An instrumented native scroll reached 2,820 unique saves and 2,506 unique likes. Peak sampled RSS was 775 MiB. |

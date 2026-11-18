@@ -2,7 +2,7 @@
 title: SwiftUI rewrite
 section: Planning
 updated: 2026-11-18
-status: Passed — awaiting user for live verification
+status: Gallery installed, attended sync in progress
 ---
 # SwiftUI rewrite
 
@@ -879,9 +879,13 @@ XSAVES_DIR="$copy" ~/Applications/xsaves.app/Contents/MacOS/xsaves
 
 The media folder is a symlink to avoid copying 16 GB, so never run a sync with `XSAVES_DIR` pointing at this copy: downloads would write into the real media folder. Live sync checks use the real data folder, with the user present.
 
+### Gallery revision, 2026-11-18
+
+The revised app keeps the Library and Boards sidebar. The grid fills the detail column. Clicking a card opens a native gallery sheet with media, text, quoted post, board controls and Open on X. Done or Escape returns to the grid. This revision supersedes the right-hand inspector in the original mocks and in the milestone descriptions. The sync indicator has horizontal padding, and the board add button has a 24-point target inset from the trailing edge. Verified on an archive copy by opening a four-photo post, paging, dismissing with Escape, and running a stub sync.
+
 ### Implementation checkpoint, 2026-11-18
 
-The signed app is at `~/Applications/xsaves.app`. The six-hour agent still points to the Go executable. With the user present, the next check is the signed-out background sync with a new empty temporary data folder. Then open the installed app normally, verify the agent path, and run Sync for manual sign-in. Record progress, new media if available, and the second sync. Cutover requires a separate confirmation.
+The signed app is at `~/Applications/xsaves.app`. The attended signed-out check exited 1 after 3.86 seconds with the expected sign-in message in stderr and JSON. First launch repointed the loaded six-hour agent to the installed Swift executable. The window started an interactive sync and displayed the sign-in window. Record progress, new media if available, and the second sync. Cutover requires a separate confirmation.
 
 The search, grid, board, gallery and stub sync checks used a database backup or an empty temporary folder. During one grid crash, the UI driver relaunched the app without its test environment and briefly opened the default archive. That instance was closed. A fresh read-only backup matched all rows of the original copy after removal of its test board. Subsequent UI automation used a separate verifier bundle with an empty fallback data folder. Window bitmap snapshots can omit entire layer-backed regions on this SDK. The actual window and accessibility tree were used to check those regions.
 

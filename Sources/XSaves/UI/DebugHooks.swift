@@ -25,7 +25,7 @@ import XSavesCore
                 }
                 if model.posts.contains(where: { $0.id == id }) { model.select(id) }
             }
-            if let shown = options.inspector { model.inspectorShown = shown }
+            if options.inspector == false { model.selection = nil }
         }
         if let path = env["XSAVES_SNAPSHOT"] {
             try? await Task.sleep(for: .seconds(2))

@@ -16,7 +16,6 @@ struct XSavesApp: App {
                     Button("New Board") { model.newBoardName = "" }.keyboardShortcut("n", modifiers: [.command, .shift])
                 }
                 SidebarCommands()
-                InspectorCommands()
             }
         Settings { SettingsView(model: model) }
     }

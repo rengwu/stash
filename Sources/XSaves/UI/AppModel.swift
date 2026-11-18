@@ -11,7 +11,6 @@ enum SidebarItem: Hashable {
     var search = ""
     var posts: [PostView] = []
     var selection: String?
-    var inspectorShown = true
     var selected: PostView? { posts.first { $0.id == selection } }
     var boards: [Board] = []
     var counts = Counts.empty
@@ -125,7 +124,7 @@ enum SidebarItem: Hashable {
             columns[column].append(i)
         }
     }
-    func select(_ id: String) { selection = id; inspectorShown = true }
+    func select(_ id: String) { selection = id }
 }
 
 extension MediaView {

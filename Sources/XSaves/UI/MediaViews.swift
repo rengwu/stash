@@ -41,10 +41,11 @@ struct Gallery: View {
     var body: some View {
         if let first = items.first, items.indices.contains(index), let file = items[index].file {
             ZStack {
-                if items[index].type == .photo { Thumbnail(url: file) }
+                if items[index].type == .photo { Thumbnail(url: file, mode: .fit) }
                 else { MediaPlayer(url: file, looping: items[index].type == .animatedGIF).id(file) }
             }
             .aspectRatio(1 / first.heightRatio, contentMode: .fit)
+            .frame(maxHeight: 380)
             .overlay {
                 if items.count > 1 {
                     HStack {

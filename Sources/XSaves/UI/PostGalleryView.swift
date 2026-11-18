@@ -1,20 +1,30 @@
 import SwiftUI
 import XSavesCore
 
-struct InspectorView: View {
+struct PostGalleryView: View {
     let model: AppModel
+    let post: PostView
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
-        if let post = model.selected {
+        VStack(spacing: 0) {
+            HStack {
+                avatar(post.content, size: 36)
+                VStack(alignment: .leading) {
+                    Text(post.content.name).font(.headline)
+                    let date = post.content.createdAt.map { " · " + $0.formatted(.dateTime.month(.abbreviated).day().year()) } ?? ""
+                    Text("@\(post.content.handle)\(date)").font(.subheadline).foregroundStyle(.secondary)
+                }
+                Spacer()
+                if let url = URL(string: "https://x.com/\(post.content.handle)/status/\(post.id)") {
+                    Link(destination: url) { Label("Open on X", systemImage: "arrow.up.forward.square") }
+                        .labelStyle(.iconOnly).help("Open on X")
+                }
+                Button("Done") { dismiss() }.keyboardShortcut(.cancelAction)
+            }.padding()
+            Divider()
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        avatar(post.content, size: 36)
-                        VStack(alignment: .leading) {
-                            Text(post.content.name).font(.headline)
-                            let date = post.content.createdAt.map { " · " + $0.formatted(.dateTime.month(.abbreviated).day().year()) } ?? ""
-                            Text("@\(post.content.handle)\(date)").font(.subheadline).foregroundStyle(.secondary)
-                        }
-                    }
                     content(post.content)
                     if let quote = post.quoted {
                         VStack(alignment: .leading, spacing: 8) {
@@ -38,13 +48,16 @@ struct InspectorView: View {
                     }
                 }.padding(16).frame(maxWidth: .infinity, alignment: .leading)
             }.id(post.id)
-        } else { ContentUnavailableView("No Post Selected", systemImage: "sidebar.trailing") }
+        }
+        .frame(minWidth: 440, idealWidth: 640, minHeight: 180,
+               idealHeight: post.content.media.isEmpty && post.quoted == nil ? 300 : 560)
+        .presentationSizing(.fitted)
     }
     @ViewBuilder private func content(_ post: PostContent) -> some View {
+        Gallery(items: post.media.filter { $0.file != nil })
         if !post.text.isEmpty {
             Text(Self.linked(post.text)).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
         }
-        Gallery(items: post.media.filter { $0.file != nil })
     }
     private static func linked(_ text: String) -> AttributedString {
         var result = AttributedString(), start = text.startIndex
