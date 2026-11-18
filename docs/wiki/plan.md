@@ -2,7 +2,7 @@
 title: Plan
 section: Planning
 updated: 2026-11-18
-status: Live media verified, awaiting cutover decision
+status: SwiftUI cutover complete on swiftui
 ---
 # Plan
 
@@ -51,7 +51,7 @@ Choices made during implementation, under the decisions above.
 - Unbundled Swift sync exits before opening WebKit so a terminal run cannot inherit the Go window’s sign-in.
 
 - **One sync path:** `xsaves sync` is its own process. The window's Sync button and the background schedule both run it, and a lock file allows one at a time.
-- **Capture:** a script injected into x.com passes each Bookmarks and Likes timeline response to Go, which parses and stores it. Go tells the page when to scroll or navigate. Scrolling is paced unevenly at 1.2 to 2.5 seconds. Media downloads alongside.
+- **Capture:** a script injected into x.com passes each Bookmarks and Likes timeline response to the Swift sync process, which parses and stores it. The process tells the page when to scroll or navigate. Scrolling is paced unevenly at 1.2 to 2.5 seconds. Media downloads alongside.
 - **Invisible window:** the sync window is fully transparent and ignores the mouse rather than being hidden, because a hidden webview stops loading as it scrolls.
 - **Sign-in:** detected from X's `twid` cookie or the sidebar profile link. A background sync never shows a window; it stops and asks for a manual Sync.
 - **Stopping:** a timeline is marked complete when X returns an empty page. After that, a sync stops at the first page holding nothing new.
@@ -74,6 +74,7 @@ Checked on 2026-11-17 against the uncommitted working tree, on the user's own ac
 | Boards | Passed on generated data only |
 | Sign-in window flow | Passed once, by the user |
 | Background schedule (launchd agent) | Untested |
+| Swift M7 cutover (2026-11-18) | The user approved retiring Go on `swiftui`. After removal, the Swift build, all six tests, release bundle and signature check passed. The loaded six-hour agent points to the installed Swift app. |
 | Swift M6 fresh media (2026-11-18) | One new bookmark and one new like in 19.1 seconds. Both media rows had `done = 1`. The bookmarked GIF (86,001 bytes) and liked video (70,994,565 bytes) were present on disk with both posters. Archive totals reached 2,822 distinct saves, 808 bookmarks and 2,507 likes. |
 | Swift M6 gallery (2026-11-18) | On the copy, the new video advanced after Play with mute off. Its stereo AAC track had a measured peak of −13.4 dB in the first 12 seconds. Helium opened a test text link and the exact X status URL from the gallery. |
 | Swift M6 signed-in sync (2026-11-18) | Both timelines returned 20 existing entries. Repeat sync finished in 6.9 seconds with exit 0. Concurrent sync exited 1. Settings removed and restored the launchd agent at the installed path. Both backups had 2,820 saves, 807 bookmarks and 2,506 likes. The sole pending media row predates these runs. |
