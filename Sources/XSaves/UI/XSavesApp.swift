@@ -12,10 +12,12 @@ struct XSavesApp: App {
             .defaultSize(width: 1200, height: 860)
             .commands {
                 CommandGroup(replacing: .newItem) {
+                    Button("Sync") { model.startSync() }.keyboardShortcut("r").disabled(model.sync != nil)
                     Button("New Board") { model.newBoardName = "" }.keyboardShortcut("n", modifiers: [.command, .shift])
                 }
                 SidebarCommands()
                 InspectorCommands()
             }
+        Settings { SettingsView(model: model) }
     }
 }

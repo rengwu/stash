@@ -15,11 +15,14 @@ func log(_ message: String) {
     private var progress = SyncProgress()
     private let captures = AsyncStream<Capture>.makeStream()
     private var window: SyncWindow!
+    private var captureTask: Task<Void, Never>?
     private var mediaTask: Task<Void, Never>?
     private var finishing = false
 
     static func run(login: Bool) throws {
         guard Bundle.main.bundleURL.pathExtension == "app" else { throw ArchiveError("Run sync from the xsaves app bundle.") }
+        // The window can quit and close our stdout pipe while sync continues.
+        signal(SIGPIPE, SIG_IGN)
         let dir = Paths.dataDir
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         let fd = open(dir.appending(path: "sync.lock").path, O_CREAT | O_RDWR, 0o644)
@@ -51,7 +54,7 @@ func log(_ message: String) {
         window.web.navigationDelegate = self
         window.showLogin(false)
         window.web.load(URLRequest(url: URL(string: "https://x.com/i/bookmarks")!))
-        Task {
+        captureTask = Task {
             do {
                 for await capture in captures.stream {
                     guard capture.status == 200 else { throw ArchiveError("X refused the request (status \(capture.status)). Try again later.") }
@@ -86,13 +89,14 @@ func log(_ message: String) {
         }
     }
     private func finish(_ error: String? = nil) {
+        if let error, progress.error == nil { progress.error = error; progress.write() }
         guard !finishing else { return }
         finishing = true
-        if let error { progress.error = error; progress.write() }
         window.web.stopLoading()
         captures.continuation.finish()
         // Let in-flight downloads finish before taking the last snapshot of pending jobs.
         Task {
+            await captureTask?.value
             await mediaTask?.value
             do { try await download() }
             catch { if progress.error == nil { progress.error = error.localizedDescription; progress.write() } }

@@ -8,6 +8,6 @@ package struct SyncProgress: Codable, Sendable, Equatable {
     package func write() {
         guard var line = try? JSONEncoder().encode(self) else { return }
         line.append(10)
-        FileHandle.standardOutput.write(line)
+        try? FileHandle.standardOutput.write(contentsOf: line)
     }
 }

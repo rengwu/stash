@@ -19,6 +19,14 @@ enum SidebarItem: Hashable {
     var loading = false
     var reachedEnd = false
     var error: String?
+    var errorTitle = "xsaves"
+    var scheduleError: String?
+    var scheduleOn = false
+    var scheduling = false
+    var sync: SyncProgress?
+    var ready = false
+    private var searchTask: Task<Void, Never>?
+
     var newBoardName: String?
     var deleting: Board?
     var columns: [[Int]] = [[]]
@@ -44,7 +52,20 @@ enum SidebarItem: Hashable {
     }
     func open() async {
         guard store == nil else { return }
-        do { store = try Store(dataDir: Paths.dataDir); await reload() }
+        do {
+            store = try Store(dataDir: Paths.dataDir)
+            await reload()
+            let schedule = Schedule()
+            scheduleOn = schedule.isOn
+            if Bundle.main.bundleURL.pathExtension == "app", ProcessInfo.processInfo.environment["XSAVES_DIR"] == nil,
+               scheduleOn, schedule.programPath != Bundle.main.executableURL?.path {
+                do { try await Task.detached { try schedule.set(on: true) }.value }
+                catch { errorTitle = "Couldn't Change the Schedule"; self.error = error.localizedDescription }
+                scheduleOn = schedule.isOn
+            }
+            await DebugHooks.apply(self)
+            ready = true
+        }
         catch { self.error = error.localizedDescription }
     }
     func reload() async {
@@ -142,5 +163,37 @@ extension AppModel {
             if sidebar == .board(board.id) { sidebar = .all }
             await reload()
         } catch { self.error = error.localizedDescription }
+    }
+}
+
+extension AppModel {
+    func searchChanged() {
+        guard ready else { return }
+        searchTask?.cancel()
+        searchTask = Task {
+            do { try await Task.sleep(for: .milliseconds(200)); await reload() } catch {}
+        }
+    }
+    func startSync() {
+        guard sync == nil, let executable = Bundle.main.executableURL else { return }
+        sync = SyncProgress()
+        Task {
+            do { try await SyncController.run(executable: executable) { self.sync = $0 } }
+            catch { errorTitle = "Sync Stopped"; self.error = error.localizedDescription }
+            sync = nil
+            await reload()
+        }
+    }
+    func setSchedule(_ on: Bool) {
+        guard !scheduling else { return }
+        scheduling = true
+        scheduleOn = on
+        Task {
+            let schedule = Schedule()
+            do { try await Task.detached { try schedule.set(on: on) }.value }
+            catch { scheduleError = error.localizedDescription }
+            scheduleOn = schedule.isOn
+            scheduling = false
+        }
     }
 }

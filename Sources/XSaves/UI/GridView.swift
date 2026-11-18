@@ -27,6 +27,11 @@ struct GridView: View {
             }.padding(.horizontal, 16).padding(.vertical, 12)
         }
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { model.resize($0) }
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+            geometry.visibleRect.maxY >= geometry.contentSize.height - 600 ? geometry.contentSize.height : 0
+        } action: { _, nearEnd in
+            if nearEnd > 0 { Task { await model.more(after: model.posts.count) } }
+        }
         .onExitCommand { model.selection = nil }
     }
 }

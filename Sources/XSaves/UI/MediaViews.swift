@@ -37,6 +37,7 @@ struct MediaPlayer: NSViewRepresentable {
 struct Gallery: View {
     let items: [MediaView]
     @ViewState private var index = 0
+    @FocusState private var focused: Bool
     var body: some View {
         if let first = items.first, items.indices.contains(index), let file = items[index].file {
             ZStack {
@@ -61,12 +62,14 @@ struct Gallery: View {
             }
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .focusable(items.count > 1)
+            .focused($focused)
+            .simultaneousGesture(TapGesture().onEnded { focused = true })
             .onKeyPress(.leftArrow) { page(-1); return .handled }
             .onKeyPress(.rightArrow) { page(1); return .handled }
         }
     }
     private func pageButton(_ delta: Int) -> some View {
-        Button { page(delta) } label: {
+        Button { focused = true; page(delta) } label: {
             Image(systemName: delta < 0 ? "chevron.left" : "chevron.right").frame(width: 18, height: 22)
         }
         .buttonStyle(.glass).buttonBorderShape(.circle)

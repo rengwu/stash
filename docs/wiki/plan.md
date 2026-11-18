@@ -2,7 +2,7 @@
 title: Plan
 section: Planning
 updated: 2026-11-18
-status: First version working on the user's account; native SwiftUI rewrite decided, not started
+status: SwiftUI app installed for live verification
 ---
 # Plan
 
@@ -44,6 +44,10 @@ Submitted through grill-form on 2026-11-18. The user asked to redesign the app w
 
 Choices made during implementation, under the decisions above.
 
+- The Swift grid captures the posts and column indices together so a resizing inspector can finish rendering the previous layout. Approaching the scroll bottom also requests a page, because masonry columns can end at different heights.
+- SwiftPM loads the CLT’s bundled Swift Testing macro explicitly for the test target. Incremental builds sometimes omitted it.
+- Unbundled Swift sync exits before opening WebKit so a terminal run cannot inherit the Go window’s sign-in.
+
 - **One sync path:** `xsaves sync` is its own process. The window's Sync button and the background schedule both run it, and a lock file allows one at a time.
 - **Capture:** a script injected into x.com passes each Bookmarks and Likes timeline response to Go, which parses and stores it. Go tells the page when to scroll or navigate. Scrolling is paced unevenly at 1.2 to 2.5 seconds. Media downloads alongside.
 - **Invisible window:** the sync window is fully transparent and ignores the mouse rather than being hidden, because a hidden webview stops loading as it scrolls.
@@ -68,8 +72,9 @@ Checked on 2026-11-17 against the uncommitted working tree, on the user's own ac
 | Boards | Passed on generated data only |
 | Sign-in window flow | Passed once, by the user |
 | Background schedule (launchd agent) | Untested |
-| Swift M4 (2026-11-18) | Verified board creation, ticking three posts, filtering, unticking, confirming deletion and returning to 2,820 saves on the backup. Fixed a grid resize crash found when changing inspector selection by capturing each layout snapshot. |
-| Swift M3 (2026-11-18) | Bundled window on backup showed 2,820 / 807 / 2,506. Typing swift returned 11 saves. Unmatched search displayed the system no-results view. Full visual scroll and memory checks pending. |
+| Swift M5 (2026-11-18) | Six Swift tests passed, including launchd success and failure with a fake runner. A stub child displayed 4 new and 12 files left, then the expected error alert. Settings and startup UI overrides worked. Installed bundle passed codesign verification. |
+| Swift M4 (2026-11-18) | Verified board creation, ticking three posts, filtering, unticking, confirming deletion and returning to 2,820 saves on the backup. Verified dark appearance, gallery buttons and right-arrow paging. A video started paused and unmuted and advanced after Play. A GIF advanced muted. Checking audible output, a full loop and Open on X remains part of the attended check. |
+| Swift M3 (2026-11-18) | Bundled window on backup showed 2,820 / 807 / 2,506. Typing swift returned 11 saves. Unmatched search displayed the system no-results view. An instrumented native scroll reached 2,820 unique saves and 2,506 unique likes. Peak sampled RSS was 775 MiB. |
 | Swift M2 (2026-11-18) | SyncMachine tests passed. Holding the Go-compatible flock made the bundled command exit 1 with the expected stderr and JSON error. Live signed-out check deferred until the user is present. |
 | Swift M1 (2026-11-18) | Unit tests passed. Backup matched sqlite3 (2,820 distinct, 807 bookmarks, 2,506 likes). All Saves and Likes paged without gaps or duplicate IDs. |
 | Swift M0 (2026-11-18) | Debug and release built, signature verified, bundle opened, and clicking the counter rendered 1. Invalid command printed usage and exited 1. |
