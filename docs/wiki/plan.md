@@ -68,6 +68,7 @@ Checked on 2026-11-17 against the uncommitted working tree, on the user's own ac
 | Boards | Passed on generated data only |
 | Sign-in window flow | Passed once, by the user |
 | Background schedule (launchd agent) | Untested |
+| Swift M1 (2026-11-18) | Unit tests passed. Backup matched sqlite3 (2,820 distinct, 807 bookmarks, 2,506 likes). All Saves and Likes paged without gaps or duplicate IDs. |
 | Swift M0 (2026-11-18) | Debug and release built, signature verified, bundle opened, and clicking the counter rendered 1. Invalid command printed usage and exited 1. |
 
 `XSAVES_EVAL` holds a script to run in the window after it loads, and `XSAVES_DIR` points the app at another data folder. Both exist for checks like these.

@@ -2,7 +2,7 @@
 title: SwiftUI rewrite
 section: Planning
 updated: 2026-11-18
-status: Passed — M1 in progress
+status: Passed — sync in progress
 ---
 # SwiftUI rewrite
 
@@ -822,7 +822,7 @@ Each milestone ends with its checks passing and a commit on `swiftui`.
 | # | Milestone | Done when |
 |---|---|---|
 | M0 (Passed) | Package skeleton: `Package.swift`, `Entry`, an empty window, `ViewState`, `bundle.sh`, `Info.plist`, `.gitignore` | `swift build` and `scripts/bundle.sh` succeed. The bundled app opens a window. A test view using `@ViewState` updates on click. `xsaves foo` prints the usage text and exits 1 |
-| M1 | Core: `Paths`, `Database`, `Store`, `Models`, `Parse`, `Progress`, `ftsQuery`, with tests | `swift test` passes, including `ParseTests` (ported sample), `StoreTests` and `PathsTests` (below). A test-only run against a backup copy of the real database matches `sqlite3`'s counts (2,820 / 807 / 2,506 as of 2026-11-18) |
+| M1 (Passed) | Core: `Paths`, `Database`, `Store`, `Models`, `Parse`, `Progress`, `ftsQuery`, with tests | `swift test` passes, including `ParseTests` (ported sample), `StoreTests` and `PathsTests` (below). A test-only run against a backup copy of the real database matches `sqlite3`'s counts (2,820 / 807 / 2,506 as of 2026-11-18) |
 | M2 | Sync command: `SyncMachine` with tests, `SyncCommand`, `SyncWindow`, `InjectScript`, `Downloader`, `Schedule`, `xsaves schedule on|off` | `SyncMachineTests` pass. With a temporary `XSAVES_DIR`, the bundled `build/xsaves.app/Contents/MacOS/xsaves sync` (signed out, because the bundle's storage is new) exits 1 within about 5 s with the sign-in message and a matching progress line. A second `xsaves sync` during a run exits 1 with `A sync is already running.` Running `schedule` against the real agent waits for M6 |
 | M3 | Window shell and grid: `AppModel`, `ContentView`, `SidebarView`, `GridView`, `CardView`, `ImageLoader`, search, paging, empty states, title and subtitle | On a copy of the archive (see [Test data](#test-data)): counts match, search updates as you type, scrolling through all Likes loads every page smoothly, the screens match 03, 06 and 07 |
 | M4 | Inspector and boards: `InspectorView`, gallery, players, quoted posts, links, Open on X, board create, delete, tick, filter | Screens match 01, 02, 08, 09 and 10. Every item in [Verification](#verification) about the inspector and boards passes on the copy |
