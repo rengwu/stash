@@ -1,0 +1,97 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>xsaves 01-main</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--desk:linear-gradient(135deg,#c6d3e4,#e8e0d6);--win:#fff;--l1:#1d1d1f;--l2:rgba(0,0,0,.56);--l3:rgba(0,0,0,.34);--sep:rgba(0,0,0,.1);--fill2:rgba(0,0,0,.075);--glass:rgba(239,239,242,.82);--btn:rgba(255,255,255,.86);--edge:rgba(0,0,0,.1);--acc:#0a7aff;--accs:rgba(10,122,255,.13);--tile:#f3f3f5;--md:#e6e6ea;--segon:#fff;--bar:rgba(255,255,255,.5);--menu:#f7f7f9;--sh:0 22px 60px rgba(0,0,0,.2),0 0 0 .5px rgba(0,0,0,.25)}
+@media (prefers-color-scheme:dark){:root{--desk:linear-gradient(135deg,#19202e,#2b2521);--win:#1d1d1f;--l1:#f5f5f7;--l2:rgba(255,255,255,.58);--l3:rgba(255,255,255,.34);--sep:rgba(255,255,255,.11);--fill2:rgba(255,255,255,.11);--glass:rgba(46,46,50,.84);--btn:rgba(70,70,74,.8);--edge:rgba(255,255,255,.12);--acc:#3d9bff;--accs:rgba(61,155,255,.22);--tile:#2a2a2d;--md:#333336;--segon:rgba(255,255,255,.2);--bar:rgba(30,30,32,.5);--menu:#2a2a2e;--sh:0 22px 60px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.16)}}
+html,body{height:100%;overflow:hidden}
+body{background:var(--desk);color:var(--l1);font:13px/1.38 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.canvas{position:relative;padding:14px;margin:0 auto}
+.win{position:relative;height:100%;background:var(--win);border-radius:20px;box-shadow:var(--sh);overflow:hidden}
+svg{display:block}
+.lights{position:absolute;left:20px;top:20px;display:flex;gap:8px;z-index:9}
+.lights i{width:12px;height:12px;border-radius:50%;background:#ff5f57;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.18)}
+.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+.side{position:absolute;left:8px;top:8px;bottom:8px;width:212px;background:var(--glass);-webkit-backdrop-filter:blur(30px) saturate(1.7);backdrop-filter:blur(30px) saturate(1.7);border-radius:15px;box-shadow:0 0 0 .5px var(--edge),0 3px 12px rgba(0,0,0,.07);padding:44px 10px 10px;z-index:5}
+.sec{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:600;color:var(--l3);padding:14px 8px 5px}
+.sec svg{width:15px;height:15px;color:var(--l2)}
+.row{display:flex;align-items:center;gap:8px;height:28px;padding:0 8px;border-radius:8px}
+.row svg{width:16px;height:16px;color:var(--acc);flex:none}
+.row .n{margin-left:auto;font-size:12px;color:var(--l3);font-variant-numeric:tabular-nums}
+.row.on{background:var(--fill2)}
+.tb{position:absolute;top:0;height:54px;display:flex;align-items:center;gap:8px;padding:0 12px 0 18px;z-index:4}
+.tb::before{content:"";position:absolute;inset:0 0 -18px;background:linear-gradient(var(--win) 52%,transparent);z-index:-1;pointer-events:none}
+.ttl{font-size:15px;font-weight:700;line-height:1.15;white-space:nowrap}
+.ttl small{display:block;font-size:11px;font-weight:400;color:var(--l2)}
+.sp{flex:1}
+.gl{height:32px;display:flex;align-items:center;border-radius:99px;background:var(--btn);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 0 0 .5px var(--edge),0 2px 6px rgba(0,0,0,.07);color:var(--l1);flex:none;font-size:13px}
+.gl b{width:36px;height:32px;display:grid;place-items:center;font-weight:400}
+.gl b svg{width:17px;height:17px}
+.gl .lab{display:flex;align-items:center;gap:5px;padding:0 10px 0 11px}
+.gl .lab svg{width:16px;height:16px}
+.gl .lab svg.c{width:12px;height:12px;color:var(--l2)}
+.srch{width:200px;padding:0 12px;gap:6px;color:var(--l3)}
+.srch svg{width:15px;height:15px}
+.av{flex:none;display:grid;place-items:center;border-radius:50%;color:#fff;font-weight:600;letter-spacing:.2px}
+.md{position:relative;background:var(--md);overflow:hidden;width:100%}
+.bdg{position:absolute;right:7px;top:7px;padding:1px 7px;border-radius:99px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;font-weight:500}
+.dur{position:absolute;left:7px;bottom:7px;padding:1px 7px;border-radius:99px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;font-weight:500;font-variant-numeric:tabular-nums}
+.play{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px;border-radius:50%;background:rgba(255,255,255,.3);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:grid;place-items:center;color:#fff}
+.play svg{width:16px;height:16px;margin-left:2px}
+.code{background:#1e2230;padding:16px 14px;display:flex;flex-direction:column;gap:9px}
+.code i{display:block;height:6px;border-radius:3px;opacity:.85}
+.g1{background:linear-gradient(160deg,#f6d3b5,#d98a64 55%,#7d4334)}
+.g2{background:linear-gradient(195deg,#bcd6ef,#6d9ac6 55%,#2f4b6a)}
+.g3{background:linear-gradient(170deg,#dbe8cb,#92b27b 55%,#4a6741)}
+.g4{background:linear-gradient(150deg,#efe4f6,#b6a0d3 55%,#67518d)}
+.g5{background:radial-gradient(circle at 32% 30%,#ffe7a3,#e59f39 50%,#74461b)}
+.g6{background:linear-gradient(180deg,#0e1729,#38294d 62%,#c2683a)}
+.g8{background:linear-gradient(165deg,#f2ece4,#d6c5b0 60%,#998067)}
+.g9{background:linear-gradient(190deg,#cfe9e5,#7dbdb6 55%,#2d6b66)}
+.by{display:block;font-size:11.5px;color:var(--l2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chk{display:flex;align-items:center;gap:8px;height:26px;font-size:13px}
+.chk i{width:14px;height:14px;border-radius:4px;background:var(--win);box-shadow:inset 0 0 0 1px var(--edge),0 1px 1px rgba(0,0,0,.05);flex:none}
+.chk i.on{background:var(--acc) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.6 6.3 5 8.6l4.4-5' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/10px no-repeat;box-shadow:none}
+.chip{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 10px;border-radius:99px;font-size:12px;background:var(--accs);color:var(--acc)}
+.chip svg{width:12px;height:12px}
+.chip.add{background:none;box-shadow:inset 0 0 0 1px var(--sep);color:var(--l2)}
+.q{margin-top:8px;padding:8px 10px;border-radius:9px;box-shadow:inset 0 0 0 1px var(--sep);font-size:12px}
+.q b{font-size:12px}.q span{color:var(--l2)}
+.sw{width:34px;height:20px;border-radius:99px;background:var(--acc);position:relative;flex:none}
+.sw::after{content:"";position:absolute;right:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+
+.bdg{display:flex;align-items:center;gap:3px}.bdg svg{width:11px;height:11px}
+.sbt{position:absolute;top:13px;left:186px;width:24px;height:24px;display:grid;place-items:center;color:var(--l2);z-index:9}.sbt svg{width:18px;height:18px}
+.grid{position:absolute;top:0;padding:62px 16px 0 12px;column-gap:12px}
+.card{break-inside:avoid;margin-bottom:12px;background:var(--tile);border-radius:12px;overflow:hidden}
+.card .cb{padding:9px 11px 10px}
+.card p{font-size:12.5px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden}
+.card .q div{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.card.sel{box-shadow:0 0 0 3px var(--acc)}
+.insp{position:absolute;right:0;top:0;bottom:0;width:300px;border-left:.5px solid var(--sep);background:var(--win)}
+.ib{padding:62px 16px 16px}
+.ph{display:flex;gap:10px;align-items:center;margin-bottom:10px}.ph b{display:block;font-size:13px}.ph span{font-size:12px;color:var(--l2)}
+.pt{font-size:13.5px;line-height:1.45;margin-bottom:12px}
+.gal{position:relative;border-radius:10px;overflow:hidden}
+.arrow{position:absolute;top:50%;width:28px;height:28px;margin-top:-14px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.72);color:#1d1d1f;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.arrow svg{width:14px;height:14px}.arrow.l{left:8px}.arrow.r{right:8px}
+.ctl{position:absolute;left:8px;right:8px;bottom:8px;height:30px;border-radius:99px;background:rgba(40,40,44,.72);color:#fff;display:flex;align-items:center;gap:8px;padding:0 10px;font-size:11px;font-variant-numeric:tabular-nums}
+.ctl svg{width:13px;height:13px;flex:none}.ctl .bar{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.35)}
+.iq{margin-top:12px;padding:10px 12px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--sep)}
+.iq .qh{display:flex;align-items:center;gap:7px;margin-bottom:4px;font-size:12px;white-space:nowrap;min-width:0}.iq .qh b{flex:none}.iq .qh span{color:var(--l2);overflow:hidden;text-overflow:ellipsis}
+.iq p{font-size:13px;line-height:1.42}
+.cuv{position:absolute;left:228px;right:0;top:54px;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding-bottom:60px}
+.cuv svg{width:46px;height:46px;color:var(--l3);margin-bottom:8px}
+.cuv h2{font-size:18px;font-weight:700}.cuv p{color:var(--l2);max-width:300px}
+.btn{margin-top:12px;height:30px;padding:0 16px;border-radius:99px;display:grid;place-items:center;background:var(--btn);box-shadow:0 0 0 .5px var(--edge),0 1px 3px rgba(0,0,0,.1)}
+.srch.typed{color:var(--l1)}.srch.typed .x{margin-left:auto;width:15px;height:15px;color:var(--l2)}
+.row.edit{padding-right:6px}.field{flex:1;height:22px;display:flex;align-items:center;padding:0 6px;border-radius:5px;background:var(--win);box-shadow:0 0 0 1px var(--acc),0 0 0 4px var(--accs)}
+.caret{display:inline-block;width:1px;height:14px;background:var(--l1);margin-left:1px}
+.row.ctx{box-shadow:inset 0 0 0 2px var(--acc)}
+.menu{position:absolute;padding:5px;border-radius:12px;background:var(--menu);box-shadow:0 0 0 .5px var(--edge),0 12px 34px rgba(0,0,0,.2);z-index:20}
+.mi{height:24px;display:flex;align-items:center;padding:0 12px;border-radius:6px;font-size:13px}.mi.hl{background:var(--acc);color:#fff}
+:root{--menu:#f7f7f9}@media (prefers-color-scheme:dark){:root{--menu:#2a2a2e}}</style><div class="canvas" data-w="1040" data-h="660" style="width:1040px;height:660px"><div class="win"><div class="lights"><i></i><i></i><i></i></div><span class="sbt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2.6"/><path d="M9.5 5v14"/></svg></span><div class="side">
+<div class="sec" style="padding-top:4px">Library</div><div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13.5h4.2l1.3 2h5l1.3-2H20"/><path d="M4 13.5 6.4 6h11.2l2.4 7.5V18a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/></svg>All Saves<span class="n">2,820</span></div><div class="row on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5h10v15l-5-3.6-5 3.6z"/></svg>Bookmarks<span class="n">807</span></div><div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19s-7.2-4.4-7.2-9.4A3.9 3.9 0 0 1 12 7.4a3.9 3.9 0 0 1 7.2 2.2C19.2 14.6 12 19 12 19z"/></svg>Likes<span class="n">2,506</span></div>
+<div class="sec">Boards<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5v13M5.5 12h13"/></svg></div><div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M6.5 6.2h11M8.8 3.6h6.4"/></svg>Interiors<span class="n">14</span></div><div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M6.5 6.2h11M8.8 3.6h6.4"/></svg>Recipes<span class="n">31</span></div><div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M6.5 6.2h11M8.8 3.6h6.4"/></svg>Swift<span class="n">22</span></div><div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M6.5 6.2h11M8.8 3.6h6.4"/></svg>Type<span class="n">9</span></div></div><div class="tb" style="left:228px;right:300px"><div class="ttl">Bookmarks<small>807 saves</small></div><span class="sp"></span><div class="gl"><b title="Sync"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/></svg></b></div><div class="gl srch" style="width:180px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 4.5 4.5"/></svg>Search</div></div><div class="grid" style="left:228px;right:300px;columns:2"><div class="card sel"><div class="md g9" style="aspect-ratio:1/0.5625"></div><div class="cb"><p>Desk setup, finally done. Everything within arm’s reach, and nothing on the desk that doesn’t get used every day.</p><span class="by" style="margin-top:6px">Hana Ito @hanaito</span></div></div><div class="card"><div class="md g4" style="aspect-ratio:1/1.25"></div><div class="cb"><p>Spent the weekend rebuilding my type scale from scratch. Fewer sizes, more contrast between them. Notes below.</p><span class="by" style="margin-top:6px">Mira Okafor @miraok</span></div></div><div class="card"><div class="cb"><p>We shipped offline sync today. The trick was making every write an append, then compacting in the background. Here is how it works ↓</p><span class="by" style="margin-top:6px">Tidepool @tidepoolhq</span></div></div><div class="card"><div class="md g1" style="aspect-ratio:1/0.667"><span class="bdg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="11" height="11" rx="2.4"/><path d="M15.5 5.5H7a2 2 0 0 0-2 2V16"/></svg>3</span></div><div class="cb"><p>Morning light at the studio</p><span class="by" style="margin-top:6px">Jun Park @junpark</span></div></div><div class="card"><div class="md g6" style="aspect-ratio:1/0.5625"><span class="bdg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="11" height="11" rx="2.4"/><path d="M15.5 5.5H7a2 2 0 0 0-2 2V16"/></svg>2</span><span class="play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="none"/></svg></span></div><div class="cb"><p>Timelapse of last night’s launch from 40 km away.</p><div class="q"><b>Coastal Range</b> <span>@coastalrange</span><div>Launch window opens at 21:40 tonight. Clear skies in the forecast.</div></div><span class="by" style="margin-top:6px">Low Orbit @loworbit</span></div></div><div class="card"><div class="cb"><p>Most settings screens should be three toggles and a link to the docs.</p><div class="q"><b>Priya Natarajan</b> <span>@priyan</span><div>What’s the smallest settings UI you’ve ever shipped?</div></div><span class="by" style="margin-top:6px">Sam Whitlock @swhit</span></div></div><div class="card"><div class="md g5" style="aspect-ratio:1/1"></div><div class="cb"><p>A braise that is worth every one of its twelve steps. Recipe in the thread.</p><span class="by" style="margin-top:6px">Ana Ruiz @anaruiz</span></div></div><div class="card"><div class="md code" style="aspect-ratio:1/0.62;border-radius:0px"><i style="background:#7aa2f7;width:46%;margin-left:0%"></i><i style="background:#bb9af7;width:62%;margin-left:8%"></i><i style="background:#9ece6a;width:38%;margin-left:8%"></i><i style="background:#e0af68;width:54%;margin-left:16%"></i><i style="background:#7dcfff;width:30%;margin-left:16%"></i><i style="background:#bb9af7;width:44%;margin-left:8%"></i><i style="background:#7aa2f7;width:22%;margin-left:0%"></i></div><div class="cb"><p>Swift 6.4 finally lets this compile without a single @unchecked Sendable.</p><span class="by" style="margin-top:6px">Oren Blum @orenb</span></div></div><div class="card"><div class="md g8" style="aspect-ratio:1/1.33"></div><div class="cb"><p>Studio visit: the whole kitchen is one long counter.</p><span class="by" style="margin-top:6px">Kai Mendes @kaimendes</span></div></div></div><div class="insp"><div class="tb" style="left:0;right:0"><span class="sp"></span><div class="gl"><b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 5H7a2.5 2.5 0 0 0-2.5 2.5v9.5A2.5 2.5 0 0 0 7 19.5h9.5A2.5 2.5 0 0 0 19 17v-3.5"/><path d="M13.5 4.5h6v6M19.5 4.5 11 13"/></svg></b><b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2.6"/><path d="M14.5 5v14"/></svg></b></div></div>
+<div class="ib"><div class="ph"><span class="av" style="width:36px;height:36px;background:#c4452a;font-size:14px">HI</span><div><b>Hana Ito</b><span>@hanaito · Nov 9, 2026</span></div></div>
+<p class="pt">Desk setup, finally done. Everything within arm’s reach, and nothing on the desk that doesn’t get used every day.</p><div class="gal md g9" style="aspect-ratio:1/0.5625">
+
+</div><div class="sec" style="padding:18px 0 4px">Boards</div><div class="chk"><i class="on"></i>Interiors</div><div class="chk"><i></i>Recipes</div><div class="chk"><i></i>Swift</div><div class="chk"><i></i>Type</div></div></div></div></div><script>(()=>{const c=document.querySelector('.canvas'),W=+c.dataset.w,H=+c.dataset.h;const f=()=>{c.style.zoom=Math.min(1,innerWidth/W,innerHeight/H)};f();addEventListener('resize',f)})()</script>

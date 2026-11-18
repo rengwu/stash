@@ -38,6 +38,7 @@ Submitted through grill-form on 2026-11-18. The user asked to redesign the app w
 - **Sync placement: toolbar.** A Sync button in the toolbar; while a sync runs it shows progress and the new-post count in its place. The six-hour schedule toggle moves to a Settings window (⌘,). Reason: the usual Mac placement, and the status appears only while a sync runs or after an error. Not chosen: a sidebar footer, a menu bar item.
 - **Engine: Swift throughout.** Sync, parsing, and storage are ported to Swift, giving one language and one app bundle. `inject.js` is reused as is, and the existing database and media stay in place. Reason: the Go side is about 1,000 lines, and the sync window's tricks (an invisible window that keeps rendering) become ordinary AppKit code instead of cgo. Accepted cost: one full sync must be re-checked on the user's account. Not chosen: keeping the Go sync engine as a helper inside the app, or SwiftUI over Go's local HTTP API.
 - **Look:** standard macOS 27 SwiftUI with the system's glass sidebar and toolbar, following the system's light or dark appearance.
+- **Implementation plan:** [SwiftUI rewrite](swiftui-rewrite.md), written 2026-11-18 for handoff to another agent.
 
 ## Design
 
@@ -67,6 +68,7 @@ Checked on 2026-11-17 against the uncommitted working tree, on the user's own ac
 | Boards | Passed on generated data only |
 | Sign-in window flow | Passed once, by the user |
 | Background schedule (launchd agent) | Untested |
+| Swift M0 (2026-11-18) | Debug and release built, signature verified, bundle opened, and clicking the counter rendered 1. Invalid command printed usage and exited 1. |
 
 `XSAVES_EVAL` holds a script to run in the window after it loads, and `XSAVES_DIR` points the app at another data folder. Both exist for checks like these.
 
