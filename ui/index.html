@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>xsaves</title>
+<link rel="stylesheet" href="style.css">
+
+<header>
+  <input id="search" type="search" placeholder="Search" aria-label="Search saves">
+  <div id="kinds" role="group" aria-label="Show">
+    <button data-kind="" aria-pressed="true">All</button>
+    <button data-kind="bookmark" aria-pressed="false">Bookmarks</button>
+    <button data-kind="like" aria-pressed="false">Likes</button>
+  </div>
+  <span id="status" role="status"></span>
+  <label><input id="schedule" type="checkbox"> Sync every 6 hours</label>
+  <button id="sync">Sync</button>
+</header>
+
+<nav id="boards" aria-label="Boards"></nav>
+
+<main id="grid"></main>
+<p id="empty" hidden></p>
+<div id="more"></div>
+
+<dialog id="detail"></dialog>
+
+<script src="app.js"></script>
+</html>

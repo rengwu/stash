@@ -1,0 +1,6 @@
+/xsaves
+.DS_Store
+
+# The wiki reader is generated locally from the jstack asset.
+/docs/wiki/_build.mjs
+/docs/wiki/index.html
