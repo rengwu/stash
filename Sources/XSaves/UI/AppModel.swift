@@ -127,15 +127,8 @@ enum SidebarItem: Hashable {
     }
     private func place(_ indices: Range<Int>) {
         for i in indices {
-            let post = posts[i], content = post.content
             let column = heights.indices.min { heights[$0] < heights[$1] } ?? 0
-            let image = content.media.first { $0.file != nil }
-            let lines = min(5, ceil(CGFloat(content.text.count) * 7 / max(1, width - 22)))
-            let quote: CGFloat = post.quoted.map { quoted in
-                let lines = ceil(CGFloat(quoted.text.count) * 6.5 / max(1, width - 42))
-                return 20 + min(3, lines) * 15
-            } ?? 0
-            heights[column] += 52 + lines * 17 + quote + (image?.heightRatio ?? 0) * width
+            heights[column] += CardView.height(of: posts[i], width: width)
             columns[column].append(i)
         }
     }

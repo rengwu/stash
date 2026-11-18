@@ -36,6 +36,21 @@ struct MediaPlayer: NSViewRepresentable {
     }
 }
 
+/// An author's downloaded avatar in a circle, or a person glyph until it exists.
+struct Avatar: View {
+    let authorID: String
+    let mediaDir: URL?
+    let size: CGFloat
+    var body: some View {
+        ZStack {
+            Circle().fill(.fill.tertiary)
+            Image(systemName: "person.fill").font(.system(size: size * 0.5)).foregroundStyle(.secondary)
+            if let mediaDir { Thumbnail(url: mediaDir.appending(path: Paths.avatarFile(authorID))) }
+        }
+        .frame(width: size, height: size).clipShape(Circle())
+    }
+}
+
 struct Gallery: View {
     let items: [MediaView]
     let maxHeight: CGFloat

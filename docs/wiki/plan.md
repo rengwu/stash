@@ -51,6 +51,7 @@ Choices made during implementation, under the decisions above.
   - The sheet keeps its 640 pt width and grows vertically with the window.
   - Done became a ✕ button, and clicking outside the sheet closes it.
   - The launchd agent is repointed only when its program is gone, so a dev build never takes over a working schedule.
+  - Grid cards follow X too, at about today's compactness. The user chose from four prototypes in grill-form: avatar column, small avatar in the byline, media first, and a borderless timeline. They took the small avatar in the byline, quoted media as a 16:9 strip, X's photo mosaic, and X-style dates. Reason: familiarity without taller cards.
   - Details: [SwiftUI rewrite, Review revision](swiftui-rewrite.md#review-revision-2026-11-18).
 
 - The Swift grid captures the posts and column indices together so a resizing inspector can finish rendering the previous layout. Approaching the scroll bottom also requests a page, because masonry columns can end at different heights.
@@ -109,7 +110,7 @@ Checked on 2026-11-17 against the uncommitted working tree, on the user's own ac
 
 - Is six hours the right background interval?
 - Highest-quality video made the archive 17 GB. Keep that, or cap video size?
-- Should a card show the media of the post it quotes?
+- ~~Should a card show the media of the post it quotes?~~ Answered on 2026-11-18: yes, as a strip capped at 16:9.
 - When should the Go code be removed? Proposed: once the Swift app passes the checks in Verification. Nothing is committed to git yet, so the Go version has no other fallback.
 - Will the Swift app need a fresh X sign-in? Likely, because its web storage is separate from the Go window's; unverified.
 

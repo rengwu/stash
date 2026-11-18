@@ -895,6 +895,12 @@ A review of the cutover changed these, on the user's answers where noted:
 - **Sign-in window:** the sync process has an Edit menu, because WKWebView receives ⌘V, ⌘C and ⌘A only through menu key equivalents.
 - **Grid:** a different list (sidebar item or search) starts at the top. A reload after a sync, or after a board change, keeps the loaded posts and the scroll place, and an open post stays open. Removing the open post from the shown board takes effect when the sheet closes. Paging skips posts already shown after a sync moves rows between pages, and ends on a short page instead of a stale count.
 - **Thumbnails** decode in 256-pixel steps and skip requests whose view has moved on, so resizing the window no longer queues a decode per width.
+- **Grid card** (user's choice of four prototypes, direction B): laid out like a post on X at about today's compactness. It supersedes the Card table above:
+  - The byline comes first: an 18 pt avatar, the name in bold, then @handle · date in secondary. The handle shortens first and the date always shows.
+  - Then the text (5 lines), then the media inset with 12 pt corners and a hairline border.
+  - Two to four items form X's mosaic in a 16:9 box: side by side, one large plus two stacked, or 2×2. The count badge is gone.
+  - The quote box has a 16 pt avatar byline and 3 lines of text. The quoted post's media sits below as a strip, capped at 16:9.
+- **Dates** (user's choice) read like X on cards and in the sheet: "20h" within a day, "Nov 17" this year, "Nov 17, 2024" before.
 
 ### Implementation checkpoint, 2026-11-18
 
@@ -945,4 +951,4 @@ These are carried over from [Plan](plan.md#open-questions) and remain the user's
 
 - Is six hours the right background interval?
 - Keep highest-quality video (16 GB so far), or cap it?
-- Should a card show the media of the post it quotes? This plan keeps the web UI's behavior: cards show none, the inspector shows it.
+- ~~Should a card show the media of the post it quotes?~~ Answered on 2026-11-18: yes, as a strip capped at 16:9 inside the quote box.

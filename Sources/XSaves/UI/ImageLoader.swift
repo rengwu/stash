@@ -5,7 +5,8 @@ actor ImageLoader {
     static let shared = ImageLoader()
     private let cache = NSCache<NSString, CGImage>()
     init() {
-        cache.countLimit = 400
+        // Each card shows an avatar beside its media, so allow about two images per loaded card.
+        cache.countLimit = 800
         cache.totalCostLimit = 300 * 1024 * 1024
     }
     func image(_ url: URL, size: Int) -> CGImage? {

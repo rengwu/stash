@@ -97,7 +97,7 @@ struct PostGalleryView: View {
     }
     /// The name in bold, then the handle and date in secondary, on one line.
     private func byline(_ post: PostContent) -> some View {
-        let date = post.createdAt.map { " · " + $0.formatted(.dateTime.month(.abbreviated).day().year()) } ?? ""
+        let date = post.createdAt.map { " · " + $0.postStamp } ?? ""
         return Text("\(Text(post.name).bold()) \(Text("@\(post.handle)\(date)").foregroundStyle(.secondary))").lineLimit(1)
     }
     @ViewBuilder private func content(_ post: PostContent, font: Font) -> some View {
@@ -120,13 +120,7 @@ struct PostGalleryView: View {
         return result
     }
     private func avatar(_ post: PostContent, size: CGFloat) -> some View {
-        ZStack {
-            Circle().fill(.fill.tertiary)
-            Image(systemName: "person.fill").foregroundStyle(.secondary)
-            if let root = model.store?.mediaDir {
-                Thumbnail(url: root.appending(path: Paths.avatarFile(post.authorID)))
-            }
-        }.frame(width: size, height: size).clipShape(Circle())
+        Avatar(authorID: post.authorID, mediaDir: model.store?.mediaDir, size: size)
     }
 }
 
