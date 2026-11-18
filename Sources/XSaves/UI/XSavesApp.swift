@@ -1,15 +1,19 @@
 import SwiftUI
 
-struct XSavesApp: App {
-    var body: some Scene {
-        Window("xsaves", id: "main") { Counter() }
-            .defaultSize(width: 1040, height: 660)
-    }
+private final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 }
 
-private struct Counter: View {
-    @ViewState private var count = 0
-    var body: some View {
-        Button("Count \(count)") { count += 1 }
+struct XSavesApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
+    private let model = AppModel()
+    var body: some Scene {
+        Window("xsaves", id: "main") { ContentView(model: model) }
+            .defaultSize(width: 1200, height: 860)
+            .commands {
+                CommandGroup(replacing: .newItem) {}
+                SidebarCommands()
+                InspectorCommands()
+            }
     }
 }
