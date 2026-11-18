@@ -45,6 +45,13 @@ Submitted through grill-form on 2026-11-18. The user asked to redesign the app w
 Choices made during implementation, under the decisions above.
 
 - On 2026-11-18 the user revised Round 2: keep the left library sidebar and open post details in a gallery sheet. The grid uses the remaining width.
+- Review answers, 2026-11-18, through grill-form and chat:
+  - The post sheet resembles a post on X, for familiarity: avatar column, one-line byline, then text, media and quoted post.
+  - Boards are a menu in the sheet header that can create a board with the post in it, because the old checkboxes were below the fold and absent with no boards.
+  - The sheet keeps its 640 pt width and grows vertically with the window.
+  - Done became a ✕ button, and clicking outside the sheet closes it.
+  - The launchd agent is repointed only when its program is gone, so a dev build never takes over a working schedule.
+  - Details: [SwiftUI rewrite, Review revision](swiftui-rewrite.md#review-revision-2026-11-18).
 
 - The Swift grid captures the posts and column indices together so a resizing inspector can finish rendering the previous layout. Approaching the scroll bottom also requests a page, because masonry columns can end at different heights.
 - SwiftPM loads the CLT’s bundled Swift Testing macro explicitly for the test target. Incremental builds sometimes omitted it.
@@ -74,6 +81,7 @@ Checked on 2026-11-17 against the uncommitted working tree, on the user's own ac
 | Boards | Passed on generated data only |
 | Sign-in window flow | Passed once, by the user |
 | Background schedule (launchd agent) | Untested |
+| Review fixes (2026-11-18) | Build with no warnings, all six tests and the release bundle passed. Separate probe apps showed three things. Without an Edit menu, ⌘A in a WKWebView field left the selection at 0,0; with one, it selected 0–11. A ScrollView kept its offset when its content was replaced (7,208 → 2,472 pt); with `.id` it returned to 0. A local event monitor saw a click behind a SwiftUI sheet and closed it. On an archive copy, screenshots showed the X-style sheet for text, photos, video and quoted posts, the Boards menu, posters on videos, and empty-board copy. Opening the oldest save paged through all 2,822. Not clicked in the app: the Boards menu items, New Board…, closing by clicking outside, and video playback. |
 | Swift M7 cutover (2026-11-18) | The user approved retiring Go on `swiftui`. After removal, the Swift build, all six tests, release bundle and signature check passed. The loaded six-hour agent points to the installed Swift app. |
 | Swift M6 fresh media (2026-11-18) | One new bookmark and one new like in 19.1 seconds. Both media rows had `done = 1`. The bookmarked GIF (86,001 bytes) and liked video (70,994,565 bytes) were present on disk with both posters. Archive totals reached 2,822 distinct saves, 808 bookmarks and 2,507 likes. |
 | Swift M6 gallery (2026-11-18) | On the copy, the new video advanced after Play with mute off. Its stereo AAC track had a measured peak of −13.4 dB in the first 12 seconds. Helium opened a test text link and the exact X status URL from the gallery. |

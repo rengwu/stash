@@ -5,6 +5,7 @@ import XSavesCore
 struct MediaPlayer: NSViewRepresentable {
     let url: URL
     let looping: Bool
+    var autoplay = false
 
     final class Coordinator {
         var looper: AVPlayerLooper?
@@ -22,6 +23,7 @@ struct MediaPlayer: NSViewRepresentable {
         } else {
             view.controlsStyle = .inline
             view.player = AVPlayer(url: url)
+            if autoplay { view.player?.play() }
         }
         return view
     }
@@ -36,16 +38,32 @@ struct MediaPlayer: NSViewRepresentable {
 
 struct Gallery: View {
     let items: [MediaView]
+    let maxHeight: CGFloat
     @ViewState private var index = 0
+    /// A video shows its poster and a play button until clicked, rather than a blank first frame.
+    @ViewState private var playing = false
     @FocusState private var focused: Bool
     var body: some View {
         if let first = items.first, items.indices.contains(index), let file = items[index].file {
             ZStack {
-                if items[index].type == .photo { Thumbnail(url: file, mode: .fit) }
-                else { MediaPlayer(url: file, looping: items[index].type == .animatedGIF).id(file) }
+                switch items[index].type {
+                case .photo: Thumbnail(url: file, mode: .fit)
+                case .animatedGIF: MediaPlayer(url: file, looping: true).id(file)
+                case .video:
+                    if playing { MediaPlayer(url: file, looping: false, autoplay: true).id(file) }
+                    else {
+                        Button { playing = true } label: {
+                            Thumbnail(url: items[index].poster, mode: .fit).overlay {
+                                Image(systemName: "play.fill").font(.title).foregroundStyle(.white)
+                                    .frame(width: 56, height: 56).background(.black.opacity(0.5), in: Circle())
+                            }
+                        }
+                        .buttonStyle(.plain).accessibilityLabel("Play video")
+                    }
+                }
             }
             .aspectRatio(1 / first.heightRatio, contentMode: .fit)
-            .frame(maxHeight: 380)
+            .frame(maxHeight: maxHeight)
             .overlay {
                 if items.count > 1 {
                     HStack {
@@ -61,7 +79,8 @@ struct Gallery: View {
                         .foregroundStyle(.white).background(.black.opacity(0.5), in: Capsule()).padding(7)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay { RoundedRectangle(cornerRadius: 16).stroke(.separator) }
             .focusable(items.count > 1)
             .focused($focused)
             .simultaneousGesture(TapGesture().onEnded { focused = true })
@@ -76,5 +95,8 @@ struct Gallery: View {
         .buttonStyle(.glass).buttonBorderShape(.circle)
         .accessibilityLabel(delta < 0 ? "Previous item" : "Next item")
     }
-    private func page(_ delta: Int) { index = (index + delta + items.count) % items.count }
+    private func page(_ delta: Int) {
+        index = (index + delta + items.count) % items.count
+        playing = false
+    }
 }

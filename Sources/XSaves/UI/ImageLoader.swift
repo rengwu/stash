@@ -11,7 +11,8 @@ actor ImageLoader {
     func image(_ url: URL, size: Int) -> CGImage? {
         let key = "\(size):\(url.path)" as NSString
         if let image = cache.object(forKey: key) { return image }
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        // Requests queue on this actor; skip ones whose view has since moved on.
+        guard !Task.isCancelled, let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
         let options: [CFString: Any] = [kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceCreateThumbnailWithTransform: true, kCGImageSourceShouldCacheImmediately: true,
             kCGImageSourceThumbnailMaxPixelSize: size]
@@ -27,7 +28,8 @@ struct Thumbnail: View {
     @ViewState private var image: CGImage?
     var body: some View {
         GeometryReader { geo in
-            let size = max(1, Int(ceil(geo.size.width * 2)))
+            // Decode in 256-pixel steps, so resizing the window reuses decoded images instead of decoding at every width.
+            let size = Int((geo.size.width * 2 / 256).rounded(.up)) * 256
             ZStack {
                 Color.clear
                 if let image {
@@ -37,6 +39,7 @@ struct Thumbnail: View {
             .frame(width: geo.size.width, height: geo.size.height).clipped()
             .task(id: "\(url?.path ?? ""):\(size)") {
                 guard let url else { image = nil; return }
+                guard size > 0 else { return }
                 let result = await ImageLoader.shared.image(url, size: size)
                 if !Task.isCancelled { image = result }
             }

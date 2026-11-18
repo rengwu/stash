@@ -11,6 +11,23 @@ import WebKit
         isReleasedWhenClosed = false
         contentView = web
     }
+    /// Key equivalents reach a web view through the menu bar: without an Edit menu, ⌘V, ⌘C and ⌘A do nothing in the sign-in page.
+    static func editMenu() -> NSMenu {
+        let edit = NSMenu(title: "Edit")
+        edit.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
+        edit.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        edit.addItem(.separator())
+        edit.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        edit.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edit.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        edit.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        let bar = NSMenu(), app = NSMenuItem(), editItem = NSMenuItem()
+        app.submenu = NSMenu()
+        editItem.submenu = edit
+        bar.addItem(app)
+        bar.addItem(editItem)
+        return bar
+    }
     func showLogin(_ visible: Bool) {
         NSApp.setActivationPolicy(visible ? .regular : .accessory)
         alphaValue = visible ? 1 : 0

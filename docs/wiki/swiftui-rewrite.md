@@ -715,7 +715,7 @@ Form (.grouped), width 420
 
 1. Create the `Store` and load the first page, counts and boards.
 2. Set `scheduleOn = Schedule.isOn`.
-3. **Repoint the schedule.** Only when running from an `.app` bundle (`Bundle.main.bundleURL.pathExtension == "app"`) and `XSAVES_DIR` is not set: if the agent exists and its program path isn't this executable, call `Schedule.set(on: true)`. On first launch this moves the user's agent from the Go binary to the app.
+3. **Repoint the schedule.** Only when running from an `.app` bundle (`Bundle.main.bundleURL.pathExtension == "app"`) and `XSAVES_DIR` is not set: if the agent exists and its program is no longer an executable file, call `Schedule.set(on: true)`. On first launch this moved the user's agent from the Go binary to the app. Since the review of 2026-11-18, a working agent is never taken over, so opening `build/xsaves.app` leaves the installed app's schedule alone.
 
    Never do this from `swift run` or a test build, which would point launchd at a build folder.
 4. Apply `XSAVES_UI` if set.
@@ -728,7 +728,7 @@ Form (.grouped), width 420
 | Search with no matches (screen 07) | `ContentUnavailableView.search(text: model.search)` |
 | Bookmarks empty, but other saves exist | `No Bookmarks`: `Sync fetches the posts you bookmark on X.` |
 | Likes empty, but other saves exist | `No Likes`: `Sync fetches the posts you like on X.` |
-| A board with no posts | `rectangle.stack`: title `No Posts in <name>`, text `Select a post and tick <name> in the inspector.` |
+| A board with no posts | `rectangle.stack`: title `No Posts in <name>`, text `Open a post and choose “<name>” from its Boards menu.` |
 
 There's no loading indicator: a page loads in milliseconds.
 
@@ -882,6 +882,19 @@ The media folder is a symlink to avoid copying 16 GB, so never run a sync with `
 ### Gallery revision, 2026-11-18
 
 The revised app keeps the Library and Boards sidebar. The grid fills the detail column. Clicking a card opens a native gallery sheet with media, text, quoted post, board controls and Open on X. Done or Escape returns to the grid. This revision supersedes the right-hand inspector in the original mocks and in the milestone descriptions. The sync indicator has horizontal padding, and the board add button has a 24-point target inset from the trailing edge. Verified on an archive copy by opening a four-photo post, paging, dismissing with Escape, and running a stub sync.
+
+### Review revision, 2026-11-18
+
+A review of the cutover changed these, on the user's answers where noted:
+
+- **Post sheet** (user's request): laid out like a post on X for familiarity. The 40 pt avatar sits in its own column. Beside it are the byline (**name** @handle · date, on one line), then the text in `.title3`, then the media. Media has 16 pt corners and a hairline border. The quoted post sits in a matching rounded box. There is no reply, repost or like row: the counts would be copies from save time, and the buttons could do nothing here.
+- **Sheet controls:** a Boards pull-down, Open on X and a ✕ close button float at the top trailing corner, so they stay reachable while the post scrolls. Esc still closes. A click on the dimmed window behind the sheet also closes it, except on the toolbar, which still drags the window.
+- **Boards in the sheet** (user's choice): the bottom checkboxes became the Boards menu, with one checkmark item per board and `New Board…`. The menu is there even with no boards. `New Board…` asks for a name, creates the board, or finds an existing one with that name, and adds the post to it.
+- **Sheet size** (user's choice): the width stays 640 pt. The height fits the post, up to the window height minus 100 pt, and media may use all but 160 pt of that.
+- **Video in the sheet:** shows its poster with a play button until clicked, instead of a blank first frame.
+- **Sign-in window:** the sync process has an Edit menu, because WKWebView receives ⌘V, ⌘C and ⌘A only through menu key equivalents.
+- **Grid:** a different list (sidebar item or search) starts at the top. A reload after a sync, or after a board change, keeps the loaded posts and the scroll place, and an open post stays open. Removing the open post from the shown board takes effect when the sheet closes. Paging skips posts already shown after a sync moves rows between pages, and ends on a short page instead of a stale count.
+- **Thumbnails** decode in 256-pixel steps and skip requests whose view has moved on, so resizing the window no longer queues a decode per width.
 
 ### Implementation checkpoint, 2026-11-18
 

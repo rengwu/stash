@@ -2,12 +2,13 @@ import SwiftUI
 
 struct ContentView: View {
     @Bindable var model: AppModel
+    @ViewState private var height: CGFloat = 860
     var body: some View {
         NavigationSplitView {
             SidebarView(model: model).navigationSplitViewColumnWidth(min: 180, ideal: 212, max: 280)
         } detail: {
             Group {
-                if model.posts.isEmpty { empty } else { GridView(model: model) }
+                if model.posts.isEmpty { empty } else { GridView(model: model).id(model.generation) }
             }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -30,8 +31,11 @@ struct ContentView: View {
             .searchable(text: $model.search, placement: .toolbar, prompt: "Search")
         }
         .frame(minWidth: 760, minHeight: 480)
-        .sheet(isPresented: Binding(get: { model.selection != nil }, set: { if !$0 { model.selection = nil } })) {
-            if let post = model.selected { PostGalleryView(model: model, post: post) }
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height = $0 }
+        .sheet(isPresented: Binding(get: { model.selection != nil }, set: { if !$0 { model.selection = nil } }),
+               onDismiss: { Task { await model.galleryClosed() } }) {
+            // The sheet hangs below the toolbar; leave a margin under it.
+            if let post = model.selected { PostGalleryView(model: model, post: post, maxHeight: max(300, height - 100)) }
         }
         .task { await model.open() }
         .onChange(of: model.sidebar) { if model.ready { Task { await model.reload() } } }
@@ -54,7 +58,7 @@ struct ContentView: View {
             switch model.sidebar {
             case .bookmarks: ContentUnavailableView("No Bookmarks", systemImage: "bookmark", description: Text("Sync fetches the posts you bookmark on X."))
             case .likes: ContentUnavailableView("No Likes", systemImage: "heart", description: Text("Sync fetches the posts you like on X."))
-            case .board: ContentUnavailableView("No Posts in \(model.title)", systemImage: "rectangle.stack", description: Text("Select a post and tick \(model.title) in the gallery."))
+            case .board: ContentUnavailableView("No Posts in \(model.title)", systemImage: "rectangle.stack", description: Text("Open a post and choose “\(model.title)” from its Boards menu."))
             case .all: EmptyView()
             }
         }

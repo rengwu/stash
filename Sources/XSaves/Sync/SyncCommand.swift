@@ -34,6 +34,7 @@ func log(_ message: String) {
         defer { ProcessInfo.processInfo.endActivity(activity) }
         _ = NSApplication.shared
         NSApp.setActivationPolicy(.accessory)
+        NSApp.mainMenu = SyncWindow.editMenu()
         command.start()
         NSApp.run()
     }
@@ -76,7 +77,8 @@ func log(_ message: String) {
             while !finishing {
                 do {
                     try await download()
-                    if !finishing { try await Task.sleep(for: .seconds(3)) }
+                    // Pause 3 s between passes, but notice the end of the scrape within a quarter second.
+                    for _ in 0..<12 where !finishing { try await Task.sleep(for: .milliseconds(250)) }
                 } catch { if !Task.isCancelled { finish(error.localizedDescription) }; return }
             }
         }
