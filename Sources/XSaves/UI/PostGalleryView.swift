@@ -10,7 +10,6 @@ struct PostGalleryView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @ViewState private var naming = false
-    @ViewState private var boardName = ""
     @ViewState private var contentHeight: CGFloat = 0
     @ViewState private var controlsWidth: CGFloat = 0
     @ViewState private var monitor: Any?
@@ -58,14 +57,6 @@ struct PostGalleryView: View {
         // A fixed width keeps text wrapping, and so the measured height, the same in every layout pass.
         .frame(width: 640)
         .presentationSizing(.fitted)
-        .alert("New Board", isPresented: $naming) {
-            TextField("Name", text: $boardName)
-            Button("Create") {
-                let name = boardName
-                Task { await model.createBoard(name, adding: post.id) }
-            }
-            Button("Cancel", role: .cancel) {}
-        }
         .onAppear {
             // The sheet blocks clicks on the window behind it. A click on that window's content closes the post instead;
             // the toolbar is left alone so the window can still be dragged.
@@ -87,13 +78,17 @@ struct PostGalleryView: View {
                 }))
             }
             if !model.boards.isEmpty { Divider() }
-            Button("New Board…") { boardName = ""; naming = true }
+            Button("New Board…") { naming = true }
         } label: {
             Label("Boards", systemImage: "rectangle.stack")
         }
         .buttonStyle(.glass)
         .fixedSize()
         .help("Add to a board")
+        // A popover, not an alert: an alert's text field is an accessory that AppKit insets apart from the title and buttons.
+        .popover(isPresented: $naming, arrowEdge: .bottom) {
+            NewBoardField { name in Task { await model.createBoard(name, adding: post.id) } }
+        }
     }
     private func circleButton(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) { Image(systemName: systemImage).frame(width: 16, height: 16) }
@@ -132,5 +127,26 @@ struct PostGalleryView: View {
                 Thumbnail(url: root.appending(path: Paths.avatarFile(post.authorID)))
             }
         }.frame(width: size, height: size).clipShape(Circle())
+    }
+}
+
+/// Names a new board in one row, focused on open. Return creates it; Esc or a click elsewhere cancels.
+private struct NewBoardField: View {
+    let create: (String) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @ViewState private var name = ""
+    @FocusState private var focused: Bool
+    var body: some View {
+        HStack {
+            TextField("New board name", text: $name).focused($focused).frame(width: 200)
+            Button("Create") {
+                create(name)
+                dismiss()
+            }
+            .keyboardShortcut(.defaultAction)
+            .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+        .padding(12)
+        .onAppear { focused = true }
     }
 }
