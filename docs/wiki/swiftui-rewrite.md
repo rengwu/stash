@@ -2,7 +2,7 @@
 title: SwiftUI rewrite
 section: Planning
 updated: 2026-11-18
-status: Gallery installed, attended sync in progress
+status: Signed-in sync and schedule verified, fresh media pending
 ---
 # SwiftUI rewrite
 
@@ -823,11 +823,11 @@ Each milestone ends with its checks passing and a commit on `swiftui`.
 |---|---|---|
 | M0 (Passed) | Package skeleton: `Package.swift`, `Entry`, an empty window, `ViewState`, `bundle.sh`, `Info.plist`, `.gitignore` | `swift build` and `scripts/bundle.sh` succeed. The bundled app opens a window. A test view using `@ViewState` updates on click. `xsaves foo` prints the usage text and exits 1 |
 | M1 (Passed) | Core: `Paths`, `Database`, `Store`, `Models`, `Parse`, `Progress`, `ftsQuery`, with tests | `swift test` passes, including `ParseTests` (ported sample), `StoreTests` and `PathsTests` (below). A test-only run against a backup copy of the real database matches `sqlite3`'s counts (2,820 / 807 / 2,506 as of 2026-11-18) |
-| M2 (Offline checks passed) | Sync command: `SyncMachine` with tests, `SyncCommand`, `SyncWindow`, `InjectScript`, `Downloader`, `Schedule`, `xsaves schedule on|off` | `SyncMachineTests` pass. With a temporary `XSAVES_DIR`, the bundled `build/xsaves.app/Contents/MacOS/xsaves sync` (signed out, because the bundle's storage is new) exits 1 within about 5 s with the sign-in message and a matching progress line. A second `xsaves sync` during a run exits 1 with `A sync is already running.` Running `schedule` against the real agent waits for M6 |
+| M2 (Passed) | Sync command: `SyncMachine` with tests, `SyncCommand`, `SyncWindow`, `InjectScript`, `Downloader`, `Schedule`, `xsaves schedule on|off` | `SyncMachineTests` pass. With a temporary `XSAVES_DIR`, the bundled `build/xsaves.app/Contents/MacOS/xsaves sync` (signed out, because the bundle's storage is new) exits 1 within about 5 s with the sign-in message and a matching progress line. A second `xsaves sync` during a run exits 1 with `A sync is already running.` Running `schedule` against the real agent waits for M6 |
 | M3 (Archive paging checked) | Window shell and grid: `AppModel`, `ContentView`, `SidebarView`, `GridView`, `CardView`, `ImageLoader`, search, paging, empty states, title and subtitle | On a copy of the archive (see [Test data](#test-data)): counts match, search updates as you type, scrolling through all Likes loads every page smoothly, the screens match 03, 06 and 07 |
 | M4 (Inspector and boards implemented) | Inspector and boards: `InspectorView`, gallery, players, quoted posts, links, Open on X, board create, delete, tick, filter | Screens match 01, 02, 08, 09 and 10. Every item in [Verification](#verification) about the inspector and boards passes on the copy |
 | M5 (Passed) | Sync in the window, Settings, startup repointing, debug hooks | The toolbar states match 04, using a stub sync executable that prints progress lines and exits. Settings matches 05. `Schedule` takes its LaunchAgents folder and its `launchctl` runner as parameters, and tests use a temporary folder and a fake runner. The real agent isn't touched before M6 |
-| M6 | Live checks with the user | Every item in [Verification](#verification) passes, including the live sync, the schedule, and repointing the real agent. Results are recorded in the wiki |
+| M6 (Sync and schedule verified) | Live checks with the user | Every item in [Verification](#verification) passes, including the live sync, the schedule, and repointing the real agent. Results are recorded in the wiki |
 | M7 | Cutover, only after the user confirms | See [Cutover](#cutover) |
 
 `StoreTests` (temporary folder):
@@ -885,7 +885,7 @@ The revised app keeps the Library and Boards sidebar. The grid fills the detail 
 
 ### Implementation checkpoint, 2026-11-18
 
-The signed app is at `~/Applications/xsaves.app`. The attended signed-out check exited 1 after 3.86 seconds with the expected sign-in message in stderr and JSON. First launch repointed the loaded six-hour agent to the installed Swift executable. The window started an interactive sync and displayed the sign-in window. Record progress, new media if available, and the second sync. Cutover requires a separate confirmation.
+The signed app is at `~/Applications/xsaves.app`. The attended signed-out check exited 1 after 3.86 seconds with the expected sign-in message in stderr and JSON. First launch repointed the loaded six-hour agent to the installed Swift executable. The user signed in after reopening the sign-in window. The installed app fetched both timelines. A second bundled sync exited 0 in 6.9 seconds and found zero new bookmarks and likes. An overlapping invocation exited 1 with the lock message. The Settings toggle removed the plist and unloaded the service, then restored both with a 21,600-second interval. Before and after backups had 2,820 distinct saves and 3,103 of 3,104 media rows downloaded. A fresh save with downloadable media is still needed for the live media check. Cutover requires a separate confirmation.
 
 The search, grid, board, gallery and stub sync checks used a database backup or an empty temporary folder. During one grid crash, the UI driver relaunched the app without its test environment and briefly opened the default archive. That instance was closed. A fresh read-only backup matched all rows of the original copy after removal of its test board. Subsequent UI automation used a separate verifier bundle with an empty fallback data folder. Window bitmap snapshots can omit entire layer-backed regions on this SDK. The actual window and accessibility tree were used to check those regions.
 

@@ -2,7 +2,7 @@
 title: Plan
 section: Planning
 updated: 2026-11-18
-status: SwiftUI gallery installed, attended sync in progress
+status: Signed-in sync and schedule verified, fresh media pending
 ---
 # Plan
 
@@ -74,11 +74,13 @@ Checked on 2026-11-17 against the uncommitted working tree, on the user's own ac
 | Boards | Passed on generated data only |
 | Sign-in window flow | Passed once, by the user |
 | Background schedule (launchd agent) | Untested |
+| Swift M6 signed-in sync (2026-11-18) | Both timelines returned 20 existing entries. Repeat sync finished in 6.9 seconds with exit 0. Concurrent sync exited 1. Settings removed and restored the launchd agent at the installed path. Both backups had 2,820 saves, 807 bookmarks and 2,506 likes. The sole pending media row predates these runs. |
+| Swift gallery playback (2026-11-18) | A muted animated GIF advanced to its next loop item on the archive copy. The gallery exposed the selected post’s X URL. Audible output and the browser’s final destination remain unconfirmed. |
 | Swift gallery and live checks (2026-11-18) | Opening a card, paging to item 2 of 4 and dismissing with Escape passed. The left sidebar remained present. Signed-out sync exited 1 in 3.86 seconds with matching JSON and stderr. The live launchd agent repointed to Swift on first launch. |
 | Swift M5 (2026-11-18) | Six Swift tests passed, including launchd success and failure with a fake runner. A stub child displayed 4 new and 12 files left, then the expected error alert. Settings and startup UI overrides worked. Installed bundle passed codesign verification. |
-| Swift M4 (2026-11-18) | Verified board creation, ticking three posts, filtering, unticking, confirming deletion and returning to 2,820 saves on the backup. Verified dark appearance, gallery buttons and right-arrow paging. A video started paused and unmuted and advanced after Play. A GIF advanced muted. Checking audible output, a full loop and Open on X remains part of the attended check. |
+| Swift M4 (2026-11-18) | Verified board creation, ticking three posts, filtering, unticking, confirming deletion and returning to 2,820 saves on the backup. Verified dark appearance, gallery buttons and right-arrow paging. A video started paused and unmuted and advanced after Play. A GIF advanced muted. Later playback checks are recorded above. |
 | Swift M3 (2026-11-18) | Bundled window on backup showed 2,820 / 807 / 2,506. Typing swift returned 11 saves. Unmatched search displayed the system no-results view. An instrumented native scroll reached 2,820 unique saves and 2,506 unique likes. Peak sampled RSS was 775 MiB. |
-| Swift M2 (2026-11-18) | SyncMachine tests passed. Holding the Go-compatible flock made the bundled command exit 1 with the expected stderr and JSON error. Live signed-out check deferred until the user is present. |
+| Swift M2 (2026-11-18) | SyncMachine tests passed. Holding the Go-compatible flock made the bundled command exit 1 with the expected stderr and JSON error. The subsequent attended signed-out check passed. |
 | Swift M1 (2026-11-18) | Unit tests passed. Backup matched sqlite3 (2,820 distinct, 807 bookmarks, 2,506 likes). All Saves and Likes paged without gaps or duplicate IDs. |
 | Swift M0 (2026-11-18) | Debug and release built, signature verified, bundle opened, and clicking the counter rendered 1. Invalid command printed usage and exited 1. |
 
