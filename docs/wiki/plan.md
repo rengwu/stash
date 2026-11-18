@@ -2,7 +2,7 @@
 title: Plan
 section: Planning
 updated: 2026-11-18
-status: Signed-in sync and schedule verified, fresh media pending
+status: Live media verified, awaiting cutover decision
 ---
 # Plan
 
@@ -74,8 +74,10 @@ Checked on 2026-11-17 against the uncommitted working tree, on the user's own ac
 | Boards | Passed on generated data only |
 | Sign-in window flow | Passed once, by the user |
 | Background schedule (launchd agent) | Untested |
+| Swift M6 fresh media (2026-11-18) | One new bookmark and one new like in 19.1 seconds. Both media rows had `done = 1`. The bookmarked GIF (86,001 bytes) and liked video (70,994,565 bytes) were present on disk with both posters. Archive totals reached 2,822 distinct saves, 808 bookmarks and 2,507 likes. |
+| Swift M6 gallery (2026-11-18) | On the copy, the new video advanced after Play with mute off. Its stereo AAC track had a measured peak of −13.4 dB in the first 12 seconds. Helium opened a test text link and the exact X status URL from the gallery. |
 | Swift M6 signed-in sync (2026-11-18) | Both timelines returned 20 existing entries. Repeat sync finished in 6.9 seconds with exit 0. Concurrent sync exited 1. Settings removed and restored the launchd agent at the installed path. Both backups had 2,820 saves, 807 bookmarks and 2,506 likes. The sole pending media row predates these runs. |
-| Swift gallery playback (2026-11-18) | A muted animated GIF advanced to its next loop item on the archive copy. The gallery exposed the selected post’s X URL. Audible output and the browser’s final destination remain unconfirmed. |
+| Swift gallery playback (2026-11-18) | A muted animated GIF advanced to its next loop item on the archive copy. The gallery exposed the selected post’s X URL. The subsequent fresh-media run checked video audio data and the browser destination. |
 | Swift gallery and live checks (2026-11-18) | Opening a card, paging to item 2 of 4 and dismissing with Escape passed. The left sidebar remained present. Signed-out sync exited 1 in 3.86 seconds with matching JSON and stderr. The live launchd agent repointed to Swift on first launch. |
 | Swift M5 (2026-11-18) | Six Swift tests passed, including launchd success and failure with a fake runner. A stub child displayed 4 new and 12 files left, then the expected error alert. Settings and startup UI overrides worked. Installed bundle passed codesign verification. |
 | Swift M4 (2026-11-18) | Verified board creation, ticking three posts, filtering, unticking, confirming deletion and returning to 2,820 saves on the backup. Verified dark appearance, gallery buttons and right-arrow paging. A video started paused and unmuted and advanced after Play. A GIF advanced muted. Later playback checks are recorded above. |

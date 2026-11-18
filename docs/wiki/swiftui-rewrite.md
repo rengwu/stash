@@ -2,7 +2,7 @@
 title: SwiftUI rewrite
 section: Planning
 updated: 2026-11-18
-status: Signed-in sync and schedule verified, fresh media pending
+status: Live media verified, awaiting cutover decision
 ---
 # SwiftUI rewrite
 
@@ -827,7 +827,7 @@ Each milestone ends with its checks passing and a commit on `swiftui`.
 | M3 (Archive paging checked) | Window shell and grid: `AppModel`, `ContentView`, `SidebarView`, `GridView`, `CardView`, `ImageLoader`, search, paging, empty states, title and subtitle | On a copy of the archive (see [Test data](#test-data)): counts match, search updates as you type, scrolling through all Likes loads every page smoothly, the screens match 03, 06 and 07 |
 | M4 (Inspector and boards implemented) | Inspector and boards: `InspectorView`, gallery, players, quoted posts, links, Open on X, board create, delete, tick, filter | Screens match 01, 02, 08, 09 and 10. Every item in [Verification](#verification) about the inspector and boards passes on the copy |
 | M5 (Passed) | Sync in the window, Settings, startup repointing, debug hooks | The toolbar states match 04, using a stub sync executable that prints progress lines and exits. Settings matches 05. `Schedule` takes its LaunchAgents folder and its `launchctl` runner as parameters, and tests use a temporary folder and a fake runner. The real agent isn't touched before M6 |
-| M6 (Sync and schedule verified) | Live checks with the user | Every item in [Verification](#verification) passes, including the live sync, the schedule, and repointing the real agent. Results are recorded in the wiki |
+| M6 (Verified) | Live checks with the user | Every item in [Verification](#verification) passes, including the live sync, the schedule, and repointing the real agent. Results are recorded in the wiki |
 | M7 | Cutover, only after the user confirms | See [Cutover](#cutover) |
 
 `StoreTests` (temporary folder):
@@ -885,7 +885,7 @@ The revised app keeps the Library and Boards sidebar. The grid fills the detail 
 
 ### Implementation checkpoint, 2026-11-18
 
-The signed app is at `~/Applications/xsaves.app`. The attended signed-out check exited 1 after 3.86 seconds with the expected sign-in message in stderr and JSON. First launch repointed the loaded six-hour agent to the installed Swift executable. The user signed in after reopening the sign-in window. The installed app fetched both timelines. A second bundled sync exited 0 in 6.9 seconds and found zero new bookmarks and likes. An overlapping invocation exited 1 with the lock message. The Settings toggle removed the plist and unloaded the service, then restored both with a 21,600-second interval. Before and after backups had 2,820 distinct saves and 3,103 of 3,104 media rows downloaded. A fresh save with downloadable media is still needed for the live media check. Cutover requires a separate confirmation.
+The signed app is at `~/Applications/xsaves.app`. The attended signed-out check exited 1 after 3.86 seconds with the expected sign-in message in stderr and JSON. First launch repointed the loaded six-hour agent to the installed Swift executable. The user signed in after reopening the sign-in window. The installed app fetched both timelines. A second bundled sync exited 0 in 6.9 seconds and found zero new bookmarks and likes. An overlapping invocation exited 1 with the lock message. The Settings toggle removed the plist and unloaded the service, then restored both with a 21,600-second interval. Before and after backups had 2,820 distinct saves and 3,103 of 3,104 media rows downloaded. The subsequent attended sync exited 0 in 19.1 seconds and stored one new bookmark and one new like. Both new media rows were marked downloaded. The bookmarked GIF and liked video were present as MP4 files with JPEG posters. The archive now contains 2,822 distinct saves, 808 bookmarks and 2,507 likes. On a backup copy the gallery played the downloaded video unmuted, and its Open on X link opened the matching post in the default browser. Cutover requires a separate confirmation.
 
 The search, grid, board, gallery and stub sync checks used a database backup or an empty temporary folder. During one grid crash, the UI driver relaunched the app without its test environment and briefly opened the default archive. That instance was closed. A fresh read-only backup matched all rows of the original copy after removal of its test board. Subsequent UI automation used a separate verifier bundle with an empty fallback data folder. Window bitmap snapshots can omit entire layer-backed regions on this SDK. The actual window and accessibility tree were used to check those regions.
 
