@@ -5,9 +5,10 @@ cd "$(dirname "$0")/.."
 swift build -c release --product xsaves
 app=build/xsaves.app
 rm -rf "$app"
-mkdir -p "$app/Contents/MacOS"
+mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp .build/release/xsaves "$app/Contents/MacOS/xsaves"
 cp Resources/Info.plist "$app/Contents/Info.plist"
+cp Resources/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
 codesign --force --sign - "$app"
 if [ "${1:-}" = "--install" ]; then
   mkdir -p "$HOME/Applications"

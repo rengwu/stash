@@ -1,8 +1,10 @@
 ---
 title: xsaves
-updated: 2026-11-18
+updated: 2026-11-19
 ---
 # xsaves
+
+![xsaves icon](attachments/app-icon/icon-128.png)
 
 xsaves is a native SwiftUI app that archives X bookmarks, likes, and their media on the Mac. The installed app syncs every six hours.
 

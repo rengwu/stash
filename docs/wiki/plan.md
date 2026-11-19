@@ -1,7 +1,7 @@
 ---
 title: Plan
 section: Planning
-updated: 2026-11-18
+updated: 2026-11-19
 status: SwiftUI cutover complete on swiftui
 ---
 # Plan
@@ -39,6 +39,20 @@ Submitted through grill-form on 2026-11-18. The user asked to redesign the app w
 - **Engine: Swift throughout.** Sync, parsing, and storage are ported to Swift, giving one language and one app bundle. `inject.js` is reused as is, and the existing database and media stay in place. Reason: the Go side is about 1,000 lines, and the sync window's tricks (an invisible window that keeps rendering) become ordinary AppKit code instead of cgo. Accepted cost: one full sync must be re-checked on the user's account. Not chosen: keeping the Go sync engine as a helper inside the app, or SwiftUI over Go's local HTTP API.
 - **Look:** standard macOS 27 SwiftUI with the system's glass sidebar and toolbar, following the system's light or dark appearance.
 - **Implementation plan:** [SwiftUI rewrite](swiftui-rewrite.md), written 2026-11-18 for handoff to another agent.
+
+### App icon
+
+Chosen through grill-form on 2026-11-19 with jstack's `icon-design` skill. The app had no icon. References: App Icons Store, ktnr's Dribbble shots, and Icon Museum.
+
+- **Round 1, all four rejected:** A, a glass bookmark and heart; B, an archive drawer; C, a hamster mascot; D, a dark bookmark with a download arrow. The user asked for four new directions without giving a reason.
+- **Round 2, chosen: E, the candy floppy.** A translucent 3.5" floppy disk, the universal "save" icon, with a blue bookmark on its paper label. Not chosen: F, a chrome safe dial; G, posts in a specimen jar; H, a post with a dog-eared corner.
+- **Refinement and color: smoke on charcoal.** The refined disk has visible thickness, the shutter channel, the write-protect and density holes, and the magnetic disk showing through the plastic. Not chosen: aqua on lavender (the round 2 color), blue on sky, and tangerine on cream.
+- **Source:** `docs/design/app-icon/xsaves-icon.svg`, 1024 × 1024 on the macOS icon grid (an 824-point body with 185-point corners, plus the drop shadow). No X logo is used.
+- **In the bundle:** `scripts/icon.sh` renders the SVG with WebKit at every size in an `.iconset` and packs `Resources/AppIcon.icns` with `iconutil`. `scripts/bundle.sh` copies it into the app, and `Info.plist` names it in `CFBundleIconFile`. The same script writes the PNG copies shown in the README (`docs/design/app-icon/xsaves-icon.png`, 512 px) and on the wiki home (`attachments/app-icon/icon-128.png`). Run `scripts/icon.sh` again after changing the SVG. Reason: there is no Xcode, so no Icon Composer or asset catalog, and the user chose not to install it. WebKit is used because NSImage's SVG renderer drops the shadows.
+
+![Chosen icon, large and at 128, 64, 32 and 16 px on light and dark](attachments/app-icon/chosen.jpg)
+
+![All candidates by round](attachments/app-icon/candidates.jpg)
 
 ## Design
 
@@ -113,6 +127,8 @@ Checked on 2026-11-17 against the uncommitted working tree, on the user's own ac
 - ~~Should a card show the media of the post it quotes?~~ Answered on 2026-11-18: yes, as a strip capped at 16:9.
 - When should the Go code be removed? Proposed: once the Swift app passes the checks in Verification. Nothing is committed to git yet, so the Go version has no other fallback.
 - Will the Swift app need a fresh X sign-in? Likely, because its web storage is separate from the Go window's; unverified.
+- ~~How should the icon get into the bundle?~~ Answered on 2026-11-19: as an `.icns` built from the SVG; see [App icon](#app-icon). On macOS 27, Finder shows it under the system's own mask, full size and not placed on a grey tile.
+- Does the 16 px icon need its own simplified drawing? The floppy shape reads at that size, but its label and bookmark merge.
 
 ## Findings
 
