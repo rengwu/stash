@@ -4,13 +4,14 @@ package struct Schedule: Sendable {
     typealias Runner = @Sendable ([String]) throws -> Void
     private let plist: URL, executable: URL, dataDir: URL
     private let run: Runner
-    private let label = "com.xsaves.sync"
     package init() {
         self.init(folder: URL.libraryDirectory.appending(path: "LaunchAgents"),
                   executable: Bundle.main.executableURL!, dataDir: Paths.dataDir, run: Self.launchctl)
     }
     init(folder: URL, executable: URL, dataDir: URL, run: @escaping Runner) {
-        plist = folder.appending(path: "com.xsaves.sync.plist")
+        let current = folder.appending(path: "com.stash.sync.plist")
+        let previous = ["com.xsaves.sync.plist", "com.mosaic.sync.plist"].map { folder.appending(path: $0) }
+        plist = ([current] + previous).first { FileManager.default.fileExists(atPath: $0.path) } ?? current
         self.executable = executable
         self.dataDir = dataDir
         self.run = run
@@ -23,6 +24,7 @@ package struct Schedule: Sendable {
         return (dict["ProgramArguments"] as? [String])?.first
     }
     package func set(on: Bool) throws {
+        let label = plist.deletingPathExtension().lastPathComponent
         let domain = "gui/\(getuid())"
         try? run(["bootout", "\(domain)/\(label)"])
         guard on else {

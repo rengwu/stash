@@ -7,7 +7,7 @@ struct SettingsView: View {
             Section {
                 Toggle("Sync every 6 hours", isOn: Binding(get: { model.scheduleOn }, set: model.setSchedule))
                     .disabled(model.scheduling)
-            } footer: { Text("Runs in the background, even when xsaves is closed.") }
+            } footer: { Text("Runs in the background, even when stash is closed.") }
         }
         .formStyle(.grouped).frame(width: 420).fixedSize(horizontal: false, vertical: true)
         .alert("Couldn't Change the Schedule", isPresented: Binding(get: { model.scheduleError != nil },

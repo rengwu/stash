@@ -1,6 +1,6 @@
 import SwiftUI
 import AVKit
-import XSavesCore
+import StashCore
 
 struct MediaPlayer: NSViewRepresentable {
     let url: URL

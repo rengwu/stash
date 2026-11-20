@@ -7,7 +7,7 @@ package actor Store {
     package init(dataDir: URL) throws {
         mediaDir = dataDir.appending(path: "media", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: mediaDir, withIntermediateDirectories: true)
-        db = try Database(dataDir.appending(path: "xsaves.db"))
+        db = try Database(Paths.databaseURL(in: dataDir))
         try db.execute(Self.schema)
     }
 

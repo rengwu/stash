@@ -1,5 +1,5 @@
 import SwiftUI
-import XSavesCore
+import StashCore
 
 struct GridView: View {
     let model: AppModel

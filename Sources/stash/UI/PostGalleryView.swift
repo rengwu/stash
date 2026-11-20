@@ -1,5 +1,5 @@
 import SwiftUI
-import XSavesCore
+import StashCore
 
 /// One post in a sheet, laid out like a post on X: the avatar in its own column, then the byline, text, media and quoted post.
 struct PostGalleryView: View {
@@ -11,49 +11,40 @@ struct PostGalleryView: View {
     @Environment(\.openURL) private var openURL
     @ViewState private var naming = false
     @ViewState private var contentHeight: CGFloat = 0
+    @ViewState private var headerHeight: CGFloat = 0
     @ViewState private var controlsWidth: CGFloat = 0
     @ViewState private var monitor: Any?
 
     var body: some View {
         ScrollView {
-            HStack(alignment: .top, spacing: 12) {
-                avatar(post.content, size: 40)
-                VStack(alignment: .leading, spacing: 12) {
-                    // Keep the byline clear of the controls that float over the top trailing corner.
-                    byline(post.content).font(.title3).padding(.trailing, controlsWidth)
-                    content(post.content, font: .title3)
-                    if let quote = post.quoted {
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(spacing: 6) {
-                                avatar(quote, size: 20)
-                                byline(quote)
-                            }
-                            content(quote, font: .body)
+            VStack(alignment: .leading, spacing: 12) {
+                content(post.content, font: .title3)
+                if let quote = post.quoted {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 6) {
+                            avatar(quote, size: 20)
+                            byline(quote)
                         }
-                        .padding(12)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .overlay { RoundedRectangle(cornerRadius: 16).stroke(.separator) }
+                        content(quote, font: .body)
                     }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .overlay { RoundedRectangle(cornerRadius: 16).stroke(.separator) }
                 }
             }
-            .padding(16)
+            // Line up under the byline: the header's padding, then the avatar and the gap beside it.
+            .padding(.leading, 16 + 40 + 12)
+            .padding([.trailing, .bottom], 16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
         }
+        // The header stays put. The post scrolls under it and blurs out at its edge instead of running under the controls,
+        // and the scroller starts below it.
+        .safeAreaBar(edge: .top) { header }
+        .scrollEdgeEffectStyle(.soft, for: .top)
         // As tall as the post, up to the room the window leaves.
-        .frame(height: min(contentHeight, maxHeight))
+        .frame(height: min(headerHeight + contentHeight, maxHeight))
         .id(post.id)
-        .overlay(alignment: .topTrailing) {
-            HStack(spacing: 8) {
-                boardsMenu
-                if let url = URL(string: "https://x.com/\(post.content.handle)/status/\(post.id)") {
-                    circleButton("Open on X", systemImage: "arrow.up.forward") { openURL(url) }
-                }
-                circleButton("Close", systemImage: "xmark") { dismiss() }.keyboardShortcut(.cancelAction)
-            }
-            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { controlsWidth = $0 }
-            .padding(12)
-        }
         // A fixed width keeps text wrapping, and so the measured height, the same in every layout pass.
         .frame(width: 640)
         .presentationSizing(.fitted)
@@ -68,6 +59,30 @@ struct PostGalleryView: View {
             }
         }
         .onDisappear { if let monitor { NSEvent.removeMonitor(monitor) } }
+    }
+    /// The avatar, byline and controls, which stay in place while the post scrolls.
+    private var header: some View {
+        HStack(alignment: .top, spacing: 12) {
+            // With no height of its own, the avatar hangs below the byline beside the start of the text, as on X.
+            avatar(post.content, size: 40).frame(height: 0, alignment: .top)
+            // Keep the byline clear of the controls over the top trailing corner.
+            byline(post.content).font(.title3).padding(.trailing, controlsWidth)
+        }
+        .padding([.horizontal, .top], 16)
+        .padding(.bottom, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(alignment: .topTrailing) {
+            HStack(spacing: 8) {
+                boardsMenu
+                if let url = URL(string: "https://x.com/\(post.content.handle)/status/\(post.id)") {
+                    circleButton("Open on X", systemImage: "arrow.up.forward") { openURL(url) }
+                }
+                circleButton("Close", systemImage: "xmark") { dismiss() }.keyboardShortcut(.cancelAction)
+            }
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { controlsWidth = $0 }
+            .padding(12)
+        }
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { headerHeight = $0 }
     }
     /// Files the post: one checkmark item per board, and a new board that starts with this post.
     private var boardsMenu: some View {
@@ -100,27 +115,52 @@ struct PostGalleryView: View {
         let date = post.createdAt.map { " · " + $0.postStamp } ?? ""
         return Text("\(Text(post.name).bold()) \(Text("@\(post.handle)\(date)").foregroundStyle(.secondary))").lineLimit(1)
     }
-    @ViewBuilder private func content(_ post: PostContent, font: Font) -> some View {
+    @ViewBuilder private func content(_ post: PostContent, font: NSFont.TextStyle) -> some View {
         if !post.text.isEmpty {
-            Text(Self.linked(post.text)).font(font).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+            PostText(text: post.text, textStyle: font).frame(maxWidth: .infinity, alignment: .leading)
         }
         // Leave room beside the media for the byline and the start of the text.
         Gallery(items: post.media.filter { $0.file != nil }, maxHeight: max(240, maxHeight - 160))
     }
-    private static func linked(_ text: String) -> AttributedString {
-        var result = AttributedString(), start = text.startIndex
-        for match in text.matches(of: /https:\/\/\S+/) {
-            result += AttributedString(text[start..<match.range.lowerBound])
-            var link = AttributedString(match.output)
-            link.link = URL(string: String(match.output))
-            result += link
-            start = match.range.upperBound
-        }
-        result += AttributedString(text[start...])
-        return result
-    }
     private func avatar(_ post: PostContent, size: CGFloat) -> some View {
         Avatar(authorID: post.authorID, mediaDir: model.store?.mediaDir, size: size)
+    }
+}
+
+/// Display and select with the same text layout. A selectable SwiftUI Text can switch to a
+/// taller field editor on selection and scroll its first line out of the measured frame.
+private struct PostText: NSViewRepresentable {
+    let text: String
+    let textStyle: NSFont.TextStyle
+
+    func makeNSView(context: Context) -> NSTextView {
+        let view = NSTextView(usingTextLayoutManager: true)
+        view.isEditable = false
+        view.isSelectable = true
+        view.drawsBackground = false
+        view.textContainerInset = .zero
+        view.textContainer?.lineFragmentPadding = 0
+        return view
+    }
+
+    func updateNSView(_ view: NSTextView, context: Context) {
+        let font = NSFont.preferredFont(forTextStyle: textStyle)
+        guard view.string != text || view.font != font else { return }
+        let body = NSMutableAttributedString(string: text, attributes: [.font: font, .foregroundColor: NSColor.labelColor])
+        for match in text.matches(of: /https:\/\/\S+/) {
+            if let url = URL(string: String(match.output)) {
+                body.addAttribute(.link, value: url, range: NSRange(match.range, in: text))
+            }
+        }
+        view.textStorage?.setAttributedString(body)
+    }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, nsView view: NSTextView, context: Context) -> CGSize? {
+        guard let width = proposal.width, width.isFinite, let container = view.textContainer,
+              let layout = view.textLayoutManager else { return nil }
+        container.size = CGSize(width: width, height: .greatestFiniteMagnitude)
+        layout.ensureLayout(for: layout.documentRange)
+        return CGSize(width: width, height: ceil(layout.usageBoundsForTextContainer.height))
     }
 }
 

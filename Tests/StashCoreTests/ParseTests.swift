@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import XSavesCore
+@testable import StashCore
 
 let sample = #"""
 {"data":{"bookmark_timeline_v2":{"timeline":{"instructions":[{"type":"TimelineAddEntries","entries":[

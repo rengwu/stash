@@ -47,8 +47,8 @@ Chosen through grill-form on 2026-11-19 with jstack's `icon-design` skill. The a
 - **Round 1, all four rejected:** A, a glass bookmark and heart; B, an archive drawer; C, a hamster mascot; D, a dark bookmark with a download arrow. The user asked for four new directions without giving a reason.
 - **Round 2, chosen: E, the candy floppy.** A translucent 3.5" floppy disk, the universal "save" icon, with a blue bookmark on its paper label. Not chosen: F, a chrome safe dial; G, posts in a specimen jar; H, a post with a dog-eared corner.
 - **Refinement and color: smoke on charcoal.** The refined disk has visible thickness, the shutter channel, the write-protect and density holes, and the magnetic disk showing through the plastic. Not chosen: aqua on lavender (the round 2 color), blue on sky, and tangerine on cream.
-- **Source:** `docs/design/app-icon/xsaves-icon.svg`, 1024 × 1024 on the macOS icon grid (an 824-point body with 185-point corners, plus the drop shadow). No X logo is used.
-- **In the bundle:** `scripts/icon.sh` renders the SVG with WebKit at every size in an `.iconset` and packs `Resources/AppIcon.icns` with `iconutil`. `scripts/bundle.sh` copies it into the app, and `Info.plist` names it in `CFBundleIconFile`. The same script writes the PNG copies shown in the README (`docs/design/app-icon/xsaves-icon.png`, 512 px) and on the wiki home (`attachments/app-icon/icon-128.png`). Run `scripts/icon.sh` again after changing the SVG. Reason: there is no Xcode, so no Icon Composer or asset catalog, and the user chose not to install it. WebKit is used because NSImage's SVG renderer drops the shadows.
+- **Source:** `docs/design/app-icon/stash-icon.svg`, 1024 × 1024 on the macOS icon grid (an 824-point body with 185-point corners, plus the drop shadow). No X logo is used.
+- **In the bundle:** `scripts/icon.sh` renders the SVG with WebKit at every size in an `.iconset` and packs `Resources/AppIcon.icns` with `iconutil`. `scripts/bundle.sh` copies it into the app, and `Info.plist` names it in `CFBundleIconFile`. The same script writes the PNG copies shown in the README (`docs/design/app-icon/stash-icon.png`, 512 px) and on the wiki home (`attachments/app-icon/icon-128.png`). Run `scripts/icon.sh` again after changing the SVG. Reason: there is no Xcode, so no Icon Composer or asset catalog, and the user chose not to install it. WebKit is used because NSImage's SVG renderer drops the shadows.
 
 ![Chosen icon, large and at 128, 64, 32 and 16 px on light and dark](attachments/app-icon/chosen.jpg)
 
@@ -72,13 +72,13 @@ Choices made during implementation, under the decisions above.
 - SwiftPM loads the CLT’s bundled Swift Testing macro explicitly for the test target. Incremental builds sometimes omitted it.
 - Unbundled Swift sync exits before opening WebKit so a terminal run cannot inherit the Go window’s sign-in.
 
-- **One sync path:** `xsaves sync` is its own process. The window's Sync button and the background schedule both run it, and a lock file allows one at a time.
+- **One sync path:** `stash sync` is its own process. The window's Sync button and the background schedule both run it, and a lock file allows one at a time.
 - **Capture:** a script injected into x.com passes each Bookmarks and Likes timeline response to the Swift sync process, which parses and stores it. The process tells the page when to scroll or navigate. Scrolling is paced unevenly at 1.2 to 2.5 seconds. Media downloads alongside.
 - **Invisible window:** the sync window is fully transparent and ignores the mouse rather than being hidden, because a hidden webview stops loading as it scrolls.
 - **Sign-in:** detected from X's `twid` cookie or the sidebar profile link. A background sync never shows a window; it stops and asks for a manual Sync.
 - **Stopping:** a timeline is marked complete when X returns an empty page. After that, a sync stops at the first page holding nothing new.
-- **Background schedule:** a launchd agent, `com.xsaves.sync`, runs `xsaves sync` every six hours. It is off until switched on in the window or with `xsaves schedule on`.
-- **Storage:** SQLite with full-text search, plus media files, under `~/Library/Application Support/xsaves`. Each post's original data from X is kept so it can be re-read later.
+- **Background schedule:** a launchd agent, `com.stash.sync`, runs `stash sync` every six hours. It is off until switched on in the window or with `stash schedule on`.
+- **Storage:** SQLite with full-text search, plus media files, under `~/Library/Application Support/stash`. Each post's original data from X is kept so it can be re-read later.
 
 ## Verification
 

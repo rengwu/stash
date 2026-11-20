@@ -1,5 +1,5 @@
 import SwiftUI
-import XSavesCore
+import StashCore
 
 enum SidebarItem: Hashable {
     case all, bookmarks, likes, board(Int64)
@@ -18,7 +18,7 @@ enum SidebarItem: Hashable {
     var loading = false
     var reachedEnd = false
     var error: String?
-    var errorTitle = "xsaves"
+    var errorTitle = "stash"
     var scheduleError: String?
     var scheduleOn = false
     var scheduling = false
@@ -64,7 +64,7 @@ enum SidebarItem: Hashable {
             let schedule = Schedule()
             scheduleOn = schedule.isOn
             // Repoint only an agent whose program is gone, such as a moved app. A dev build never takes over a working agent.
-            if Bundle.main.bundleURL.pathExtension == "app", ProcessInfo.processInfo.environment["XSAVES_DIR"] == nil,
+            if Bundle.main.bundleURL.pathExtension == "app", Paths.dataDirOverride == nil,
                scheduleOn, !FileManager.default.isExecutableFile(atPath: schedule.programPath ?? "") {
                 do { try await Task.detached { try schedule.set(on: true) }.value }
                 catch { errorTitle = "Couldn't Change the Schedule"; self.error = error.localizedDescription }

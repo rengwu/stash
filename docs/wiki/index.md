@@ -1,12 +1,12 @@
 ---
-title: xsaves
-updated: 2026-11-19
+title: stash
+updated: 2026-11-20
 ---
-# xsaves
+# stash
 
-![xsaves icon](attachments/app-icon/icon-128.png)
+![stash icon](attachments/app-icon/icon-128.png)
 
-xsaves is a native SwiftUI app that archives X bookmarks, likes, and their media on the Mac. The installed app syncs every six hours.
+stash is a native SwiftUI app that archives X bookmarks, likes, and their media on the Mac. The installed app syncs every six hours.
 
 ## Planning
 

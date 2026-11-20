@@ -9,19 +9,19 @@ let testSettings: [SwiftSetting] = FileManager.default.fileExists(atPath: testin
     : []
 
 let package = Package(
-    name: "xsaves",
+    name: "stash",
     platforms: [.macOS(.v26)],
     targets: [
         .target(
-            name: "XSavesCore",
+            name: "StashCore",
             linkerSettings: [.linkedLibrary("sqlite3")]
         ),
         .executableTarget(
-            name: "xsaves",
-            dependencies: ["XSavesCore"],
-            path: "Sources/XSaves",
+            name: "stash",
+            dependencies: ["StashCore"],
+            path: "Sources/stash",
             linkerSettings: [.linkedFramework("AVKit"), .linkedFramework("WebKit")]
         ),
-        .testTarget(name: "XSavesCoreTests", dependencies: ["XSavesCore"], swiftSettings: testSettings),
+        .testTarget(name: "StashCoreTests", dependencies: ["StashCore"], swiftSettings: testSettings),
     ]
 )

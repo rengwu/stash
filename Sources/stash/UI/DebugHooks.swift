@@ -1,5 +1,5 @@
 import AppKit
-import XSavesCore
+import StashCore
 
 @MainActor enum DebugHooks {
     private struct Options: Decodable {
@@ -7,7 +7,7 @@ import XSavesCore
     }
     static func apply(_ model: AppModel) async {
         let env = ProcessInfo.processInfo.environment
-        if let input = env["XSAVES_UI"], let options = try? JSONDecoder().decode(Options.self, from: Data(input.utf8)) {
+        if let input = env["STASH_UI"] ?? env["MOSAIC_UI"] ?? env["XSAVES_UI"], let options = try? JSONDecoder().decode(Options.self, from: Data(input.utf8)) {
             switch options.sidebar {
             case "bookmarks": model.sidebar = .bookmarks
             case "likes": model.sidebar = .likes
@@ -27,7 +27,7 @@ import XSavesCore
             }
             if options.inspector == false { model.selection = nil }
         }
-        if let path = env["XSAVES_SNAPSHOT"] {
+        if let path = env["STASH_SNAPSHOT"] ?? env["MOSAIC_SNAPSHOT"] ?? env["XSAVES_SNAPSHOT"] {
             try? await Task.sleep(for: .seconds(2))
             guard let window = NSApp.windows.first(where: { $0.isVisible && $0.contentView != nil }),
                   let view = window.contentView, let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds)
