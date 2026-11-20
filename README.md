@@ -4,7 +4,15 @@
 
 stash is a native SwiftUI app that archives your X bookmarks, likes, and their media on the Mac, and lets you search them and sort them into boards.
 
+[Download for macOS](https://github.com/rengwu/stash/releases/latest/download/stash.zip)
+
 <br clear="right">
+
+## Install
+
+Unzip `stash.zip`, move **stash.app** into **Applications**, and open it. Requires macOS 26 or later on Apple Silicon or Intel.
+
+The release uses an ad-hoc signature and ships without Apple notarization. If macOS blocks the first launch, choose **Open Anyway** in **System Settings → Privacy & Security**.
 
 ## Build
 
@@ -13,6 +21,7 @@ stash needs macOS 26 or later and the Swift 6.2 command line tools. Xcode isn't 
 ```sh
 scripts/bundle.sh            # builds build/stash.app
 scripts/bundle.sh --install  # also copies it to ~/Applications
+scripts/bundle.sh --release  # packages the universal app as build/stash.zip
 swift test
 ```
 
@@ -20,11 +29,11 @@ swift test
 
 Open stash and choose **Sync** (⌘R). A window for x.com appears only when you need to sign in. Turn on the six-hour background sync in Settings (⌘,).
 
-Run the bundled executable from the command line.
+Run the bundled executable from the command line. If you installed with `scripts/bundle.sh --install`, use `~/Applications` in these paths.
 
 ```sh
-~/Applications/stash.app/Contents/MacOS/stash sync
-~/Applications/stash.app/Contents/MacOS/stash schedule on  # use off to remove the agent
+/Applications/stash.app/Contents/MacOS/stash sync
+/Applications/stash.app/Contents/MacOS/stash schedule on  # use off to remove the agent
 ```
 
 New archives live in `~/Library/Application Support/stash`. Set `STASH_DIR` to use another folder.
