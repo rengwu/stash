@@ -1,8 +1,10 @@
-<p align="center"><img src="docs/design/app-icon/stash-icon.png" width="128" height="128" alt="stash icon: a floppy disk whose label is a bookmarked post"></p>
-
 # stash
 
+<img src="docs/design/app-icon/stash-icon.png" alt="stash icon: a floppy disk whose label is a bookmarked post" width="34%" align="right">
+
 stash is a native SwiftUI app that archives your X bookmarks, likes, and their media on the Mac, and lets you search them and sort them into boards.
+
+<br clear="right">
 
 ## Build
 
