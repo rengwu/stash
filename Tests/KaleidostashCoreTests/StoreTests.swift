@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import StashCore
+@testable import KaleidostashCore
 
 @Test func archive() async throws {
     let dir = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
@@ -12,7 +12,7 @@ import Testing
     #expect(try await store.addPage(.bookmark, posts: page.posts, saves: page.saves) == 0)
     #expect(try await store.addPage(.like, posts: [other], saves: [.init(postID: "2", sort: 1)] + page.saves) == 2)
     #expect(try await store.counts() == Counts(all: 2, bookmarks: 1, likes: 2))
-    let db = try Database(dir.appending(path: "stash.db"))
+    let db = try Database(dir.appending(path: "kaleidostash.db"))
     for (table, expected) in [("posts",3), ("posts_fts",3), ("media",2)] {
         #expect(try db.query("SELECT count(*) FROM \(table)") { Int($0.int(0)) } == [expected])
     }
@@ -37,12 +37,12 @@ import Testing
     #expect(try await store.count(.init(board: board)) == 0)
 }
 
-@Test(arguments: ["mosaic", "xsaves"])
+@Test(arguments: ["stash", "mosaic", "xsaves"])
 func existingArchiveOpensInPlace(previousName: String) async throws {
     let files = FileManager.default
     let support = files.temporaryDirectory.appending(path: UUID().uuidString)
     defer { try? files.removeItem(at: support) }
-    let current = support.appending(path: "stash")
+    let current = support.appending(path: "Kaleidostash")
     let legacy = support.appending(path: previousName)
     #expect(Paths.defaultDataDir(in: support).path == current.path)
 
@@ -53,7 +53,7 @@ func existingArchiveOpensInPlace(previousName: String) async throws {
     #expect(resolved.path == legacy.path)
     let store = try Store(dataDir: resolved)
     #expect(try await store.meta("marker") == "existing")
-    #expect(!files.fileExists(atPath: legacy.appending(path: "stash.db").path))
+    #expect(!files.fileExists(atPath: legacy.appending(path: "kaleidostash.db").path))
 
     _ = try Store(dataDir: current)
     #expect(Paths.defaultDataDir(in: support).path == current.path)

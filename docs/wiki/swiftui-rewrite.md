@@ -1,12 +1,12 @@
 ---
 title: SwiftUI rewrite
 section: Planning
-updated: 2026-11-18
+updated: 2026-11-23
 status: Cutover complete on swiftui
 ---
 # SwiftUI rewrite
 
-This is the implementation plan for rebuilding stash as a native macOS app in Swift and SwiftUI. It is written for the agent that will implement it, and it should be enough on its own. The decisions behind it are in [Plan, Round 2](plan.md#round-2-answers): grid with inspector, sync in the toolbar with the schedule in Settings, and Swift throughout.
+This is the implementation plan for rebuilding Kaleidostash as a native macOS app in Swift and SwiftUI. It is written for the agent that will implement it, and it should be enough on its own. The decisions behind it are in [Plan, Round 2](plan.md#round-2-answers): grid with inspector, sync in the toolbar with the schedule in Settings, and Swift throughout.
 
 The Go version is committed as `8064138` on `main` and works. It is the reference for behavior: when this plan doesn't say how something should behave, do what the Go code does.
 
@@ -18,7 +18,7 @@ The Go version is committed as `8064138` on `main` and works. It is the referenc
 4. **Keep the data:** keep the existing database schema and data folder unchanged. The user's archive (24 MB database, 16 GB of media) must open as is, without migration.
 5. **Never test against the real archive:** checks use a copy. See [Test data](#test-data).
 6. **Leave x.com to the user:** the user must be present for anything that loads x.com, and you must never automate signing in. The scrape keeps its human pace.
-   - Sync requires the bundled executable (`build/stash.app/Contents/MacOS/stash sync` or the installed copy). The bundle uses the WebKit storage for `com.xsaves.app`, including any X sign-in from the previous Swift release.
+   - Sync requires the bundled executable (`build/Kaleidostash.app/Contents/MacOS/Kaleidostash sync` or the installed copy). The bundle uses the WebKit storage for `com.xsaves.app`, including any X sign-in from the previous Swift release.
 7. **Keep the Go code:** don't delete it until the Swift app passes [Verification](#verification) and the user confirms. Until then both versions live side by side in the repo.
 8. **Native look:** use system components (`NavigationSplitView`, `.inspector`, `.searchable`, toolbar items, `Form`, `ContentUnavailableView`) and let macOS 27 draw the glass. Never paint glass or window chrome yourself. The mocks show structure, content, hierarchy and sizes; when the system draws something differently from a mock, the system wins.
 9. **Plain UI:** every label and element needs a reason to exist (jstack `rule-plain-ui`). Don't add anything this plan doesn't call for.
@@ -62,27 +62,27 @@ The archive as of 2026-11-18:
 
 | Go file | Job | Swift destination |
 |---|---|---|
-| `main.go` | Subcommands, window setup, launchd schedule | `Sources/stash/Entry.swift`, `Sources/StashCore/Schedule.swift` |
-| `store.go` | Schema, inserts, queries, media paths | `Sources/StashCore/Database.swift`, `Store.swift`, `Paths.swift` |
-| `parse.go`, `parse_test.go` | Timeline JSON → posts and saves | `Sources/StashCore/Parse.swift`, `Tests/StashCoreTests/ParseTests.swift` |
-| `sync.go` | Invisible x.com window, scrape steps, media downloads, progress lines | `Sources/stash/Sync/*`, `Sources/StashCore/Downloader.swift`, `SyncMachine.swift`, `Progress.swift` |
-| `window.go` | Making the window invisible or visible through cgo | Plain AppKit in `Sources/stash/Sync/SyncWindow.swift` |
-| `inject.js` | Captures timeline responses, scrolls, navigates | `Sources/stash/Sync/InjectScript.swift`, the same script with a two-line bridge change |
-| `server.go`, `ui/*` | Local HTTP API and web UI | `Sources/stash/UI/*` (no server) |
+| `main.go` | Subcommands, window setup, launchd schedule | `Sources/Kaleidostash/Entry.swift`, `Sources/KaleidostashCore/Schedule.swift` |
+| `store.go` | Schema, inserts, queries, media paths | `Sources/KaleidostashCore/Database.swift`, `Store.swift`, `Paths.swift` |
+| `parse.go`, `parse_test.go` | Timeline JSON → posts and saves | `Sources/KaleidostashCore/Parse.swift`, `Tests/KaleidostashCoreTests/ParseTests.swift` |
+| `sync.go` | Invisible x.com window, scrape steps, media downloads, progress lines | `Sources/Kaleidostash/Sync/*`, `Sources/KaleidostashCore/Downloader.swift`, `SyncMachine.swift`, `Progress.swift` |
+| `window.go` | Making the window invisible or visible through cgo | Plain AppKit in `Sources/Kaleidostash/Sync/SyncWindow.swift` |
+| `inject.js` | Captures timeline responses, scrolls, navigates | `Sources/Kaleidostash/Sync/InjectScript.swift`, the same script with a two-line bridge change |
+| `server.go`, `ui/*` | Local HTTP API and web UI | `Sources/Kaleidostash/UI/*` (no server) |
 
 ## Architecture
 
 ```text
-stash.app/Contents/MacOS/stash          one executable, three modes
+Kaleidostash.app/Contents/MacOS/Kaleidostash          one executable, three modes
 │
 ├─ (no arguments)       SwiftUI app: window + Settings
-│     └─ starts a child process "stash sync --login" and reads its progress lines
+│     └─ starts a child process "Kaleidostash sync --login" and reads its progress lines
 ├─ sync [--login]       AppKit: invisible WKWebView on x.com, stores pages, downloads media
-│     ▲  launchd runs "stash sync" every 6 hours (com.stash.sync)
+│     ▲  launchd runs "Kaleidostash sync" every 6 hours (com.kaleidostash.sync)
 └─ schedule on|off      installs or removes the launchd agent
 ```
 
-- There's still one sync path. The window's Sync button and launchd both run `stash sync` as its own process, and `sync.lock` lets only one run at a time. The lock is the same file the Go version uses, so while both exist they also exclude each other.
+- There's still one sync path. The window's Sync button and launchd both run `Kaleidostash sync` as its own process, and `sync.lock` lets only one run at a time. The lock is the same file the Go version uses, so while both exist they also exclude each other.
 - The database is opened separately by the app and by a sync process. WAL mode and a 10-second busy timeout make that safe, as in Go.
 - The sync child is a second instance of the same bundle, so it shares the bundle's WebKit storage and stays signed in. launchd runs the executable inside the bundle, so it shares that storage too.
 
@@ -93,7 +93,7 @@ Package.swift
 Resources/Info.plist
 scripts/bundle.sh
 Sources/
-  StashCore/                 no UI; everything here has unit tests
+  KaleidostashCore/                 no UI; everything here has unit tests
     Paths.swift               data folder, media file names, avatar URL rule
     Database.swift            small SQLite3 wrapper
     Store.swift               actor: schema, inserts, queries, boards, counts
@@ -103,12 +103,12 @@ Sources/
     Progress.swift            the progress line format
     Downloader.swift          media and avatar downloads
     Schedule.swift            launchd agent install, remove, status
-  stash/
+  Kaleidostash/
     Entry.swift               @main: dispatches the modes
     Sync/SyncCommand.swift    runs a sync: lock, NSApplication, window, web view, downloads, exit code
     Sync/SyncWindow.swift     invisible and visible window states
     Sync/InjectScript.swift   the injected JavaScript as a string
-    UI/StashApp.swift        App, scenes, commands, app delegate
+    UI/KaleidostashApp.swift        App, scenes, commands, app delegate
     UI/AppModel.swift         @Observable state and actions for the window
     UI/SyncController.swift   runs the child sync process and reads its progress
     UI/ContentView.swift      NavigationSplitView, toolbar, alerts, empty states
@@ -120,9 +120,9 @@ Sources/
     UI/ImageLoader.swift      downsampled image cache
     UI/SettingsView.swift
     UI/ViewState.swift
-    UI/DebugHooks.swift       STASH_UI and STASH_SNAPSHOT
+    UI/DebugHooks.swift       KALEIDOSTASH_UI and KALEIDOSTASH_SNAPSHOT
 Tests/
-  StashCoreTests/
+  KaleidostashCoreTests/
     ParseTests.swift  StoreTests.swift  PathsTests.swift  SyncMachineTests.swift  ProgressTests.swift
 ```
 
@@ -133,20 +133,20 @@ Tests/
 import PackageDescription
 
 let package = Package(
-    name: "stash",
+    name: "Kaleidostash",
     platforms: [.macOS(.v26)],
     targets: [
         .target(
-            name: "StashCore",
+            name: "KaleidostashCore",
             linkerSettings: [.linkedLibrary("sqlite3")]
         ),
         .executableTarget(
-            name: "stash",
-            dependencies: ["StashCore"],
-            path: "Sources/stash",
+            name: "Kaleidostash",
+            dependencies: ["KaleidostashCore"],
+            path: "Sources/Kaleidostash",
             linkerSettings: [.linkedFramework("AVKit"), .linkedFramework("WebKit")]
         ),
-        .testTarget(name: "StashCoreTests", dependencies: ["StashCore"]),
+        .testTarget(name: "KaleidostashCoreTests", dependencies: ["KaleidostashCore"]),
     ]
 )
 ```
@@ -162,16 +162,16 @@ enum Entry {
         // Finder and `open` can pass arguments that start with "-"; they are not subcommands.
         let args = CommandLine.arguments.dropFirst().filter { !$0.hasPrefix("-") || $0 == "--login" }
         switch args.first {
-        case nil:        StashApp.main()
+        case nil:        KaleidostashApp.main()
         case "sync":     SyncCommand.run(login: args.dropFirst().first == "--login")   // never returns; exits 0 or 1
         case "schedule": /* "on" or "off" → Schedule.set(on:); print the error and exit 1 on failure */
-        default:         /* print "usage: stash [sync [--login] | schedule on|off]" to stderr; exit 1 */
+        default:         /* print "usage: Kaleidostash [sync [--login] | schedule on|off]" to stderr; exit 1 */
         }
     }
 }
 ```
 
-`StashApp` is a plain `struct StashApp: App` without `@main`.
+`KaleidostashApp` is a plain `struct KaleidostashApp: App` without `@main`.
 
 ### Concurrency
 
@@ -185,15 +185,15 @@ enum Entry {
 
 | Variable | Meaning |
 |---|---|
-| `STASH_DIR` | Overrides the archive folder. The sync child inherits it. stash also accepts `MOSAIC_DIR` and `XSAVES_DIR` |
-| `STASH_UI` | Verification only. JSON that sets the window's starting state. See [Debug hooks](#debug-hooks) |
-| `STASH_SNAPSHOT` | Verification only. A PNG path. See [Debug hooks](#debug-hooks) |
+| `KALEIDOSTASH_DIR` | Overrides the archive folder. The sync child inherits it. Kaleidostash also accepts `STASH_DIR`, `MOSAIC_DIR` and `XSAVES_DIR` |
+| `KALEIDOSTASH_UI` | Verification only. JSON that sets the window's starting state. See [Debug hooks](#debug-hooks) |
+| `KALEIDOSTASH_SNAPSHOT` | Verification only. A PNG path. See [Debug hooks](#debug-hooks) |
 
 ## Core module
 
 ### Paths
 
-- `dataDir` uses the environment override first. New archives default to `~/Library/Application Support/stash/stash.db`. stash also opens existing Mosaic and xsaves archives in place so their media and sync lock stay together.
+- `dataDir` uses the environment override first. New archives default to `~/Library/Application Support/Kaleidostash/kaleidostash.db`. Kaleidostash also opens existing stash, Mosaic, and xsaves archives in place so their media and sync lock stay together.
 - `mediaFile(postID, media)` returns a path relative to `media/`:
   - photo: `"<postID>/<mediaID>.<ext>"`, where `ext` is the value of `format=` in the URL (up to the next `&`), or `jpg` if there's none;
   - video and animated_gif: `"<postID>/<mediaID>.mp4"`.
@@ -343,7 +343,7 @@ The sync process writes the whole struct as one JSON line on stdout each time it
 
 ### Schedule
 
-New schedules use the label `com.stash.sync` and the file `~/Library/LaunchAgents/com.stash.sync.plist`. stash also recognizes and manages the previous `com.mosaic.sync` and `com.xsaves.sync` agents.
+New schedules use the label `com.kaleidostash.sync` and the file `~/Library/LaunchAgents/com.kaleidostash.sync.plist`. Kaleidostash also recognizes and manages the previous `com.stash.sync`, `com.mosaic.sync`, and `com.xsaves.sync` agents.
 
 - `isOn`: the plist exists.
 - `set(on:)`:
@@ -357,7 +357,7 @@ New schedules use the label `com.stash.sync` and the file `~/Library/LaunchAgent
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-	<key>Label</key><string>com.stash.sync</string>
+	<key>Label</key><string>com.kaleidostash.sync</string>
 	<key>ProgramArguments</key><array><string>EXECUTABLE</string><string>sync</string></array>
 	<key>StartInterval</key><integer>21600</integer>
 	<key>StandardOutPath</key><string>LOG</string>
@@ -394,7 +394,7 @@ Write it with `PropertyListSerialization` instead of string formatting, so paths
   - `websiteDataStore = .default()`;
   - `preferences.inactiveSchedulingPolicy = .none`, so WebKit doesn't throttle a web view it considers hidden;
   - one `WKUserScript(source: InjectScript.source, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page)`;
-  - message handler `stashCapture` (`WKScriptMessageHandler`) and reply handler `stashTick` (`WKScriptMessageHandlerWithReply`), both in `.page`.
+  - message handler `kaleidostashCapture` (`WKScriptMessageHandler`) and reply handler `kaleidostashTick` (`WKScriptMessageHandlerWithReply`), both in `.page`.
 - **Invisible** (port of `windowInvisible`):
   - `NSApp.setActivationPolicy(.accessory)`;
   - `alphaValue = 0`, `ignoresMouseEvents = true`, `level = .floating`;
@@ -413,17 +413,17 @@ Write it with `PropertyListSerialization` instead of string formatting, so paths
 `InjectScript.source` is `inject.js` from commit `8064138`, character for character. The only change is two lines inserted after its first `if (...) return;` guard, which replace the global functions webview_go used to provide:
 
 ```js
-  const stashCapture = (op, status, body) => window.webkit.messageHandlers.stashCapture.postMessage({op, status, body});
-  const stashTick = (path, handle, signedIn) => window.webkit.messageHandlers.stashTick.postMessage({path, handle, signedIn});
+  const kaleidostashCapture = (op, status, body) => window.webkit.messageHandlers.kaleidostashCapture.postMessage({op, status, body});
+  const kaleidostashTick = (path, handle, signedIn) => window.webkit.messageHandlers.kaleidostashTick.postMessage({path, handle, signedIn});
 ```
 
-Because they are local to the script's closure, x.com's own code never sees them. `stashTick` resolves to the reply object, so `await stashTick(...)` works unchanged. The reply is `{}`, `{"go": "<url>"}` or `{"scroll": true}`. The script keeps owning the pacing:
+Because they are local to the script's closure, x.com's own code never sees them. `kaleidostashTick` resolves to the reply object, so `await kaleidostashTick(...)` works unchanged. The reply is `{}`, `{"go": "<url>"}` or `{"scroll": true}`. The script keeps owning the pacing:
 - first tick 1.5 s after load, then every 1.2 to 2.5 s at random;
 - each scroll steps back 800 px, then 250 ms later jumps to the bottom.
 
 ### Captures
 
-The `stashCapture` handler receives `{op: "Bookmarks"|"Likes", status, body}` and yields it to an `AsyncStream`. A single consumer task handles captures in order, off the main actor:
+The `kaleidostashCapture` handler receives `{op: "Bookmarks"|"Likes", status, body}` and yields it to an `AsyncStream`. A single consumer task handles captures in order, off the main actor:
 
 1. If `status != 200`, fail with `X refused the request (status <status>). Try again later.`
 2. Parse the body and call `store.addPage(kind, posts, saves)`. A parse or store error fails with its message.
@@ -443,7 +443,7 @@ The `stashCapture` handler receives `{op: "Bookmarks"|"Likes", status, body}` an
 1. If `phase == done`, return nothing.
 2. Remember a non-empty `handle`. When `path` changes, log `x.com is showing <path>`.
 3. If not signed in, set `started = now`.
-   - Without `login`: fail with `Sign in to X: press Sync in the stash window.`
+   - Without `login`: fail with `Sign in to X: press Sync in the Kaleidostash window.`
    - With `login` and the window not yet shown: set `shown`, show the window, and return `go https://x.com/i/flow/login`.
    - Otherwise return nothing.
 4. If `shown` (now signed in): clear `shown` and `opened`, and make the window invisible again.
@@ -525,11 +525,11 @@ These screens show the chosen design at 1040×660 points. The posts, names and b
 ### Scenes
 
 ```swift
-struct StashApp: App {
+struct KaleidostashApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate   // terminates after the last window closes
     let model = AppModel()                                                   // App.init runs once; this is the single model
     var body: some Scene {
-        Window("stash", id: "main") { ContentView(model: model) }
+        Window("Kaleidostash", id: "main") { ContentView(model: model) }
             .defaultSize(width: 1200, height: 860)
             .commands { /* see Keyboard and menus */ }
         Settings { SettingsView(model: model) }
@@ -685,7 +685,7 @@ Open on X opens `https://x.com/<handle>/status/<id>` with `NSWorkspace.shared.op
 
 `SyncController`:
 
-1. Start `Process` with `executableURL = Bundle.main.executableURL` and `arguments = ["sync", "--login"]`. The environment is inherited, so `STASH_DIR` passes through.
+1. Start `Process` with `executableURL = Bundle.main.executableURL` and `arguments = ["sync", "--login"]`. The environment is inherited, so `KALEIDOSTASH_DIR` passes through.
 2. Send stdout to a `Pipe`, and append stderr to `<dataDir>/sync.log`.
 3. Read `pipe.fileHandleForReading.bytes.lines`, decode each line as `Progress`, and set `model.sync = .running(progress)`.
 4. When the process exits, set `.idle`. If the exit status isn't 0, set `model.alert` to the last `Progress.error`, or `Sync stopped (exit status N).` if there is none. Then `reload()`.
@@ -706,7 +706,7 @@ Screen 05:
 Form (.grouped), width 420
 └─ Section
      Toggle("Sync every 6 hours")        bound to model.scheduleOn through model.setSchedule
-     footer: "Runs in the background, even when stash is closed."
+     footer: "Runs in the background, even when Kaleidostash is closed."
 ```
 
 `setSchedule` runs `Schedule.set(on:)` off the main actor. On failure it turns the toggle back and shows an alert titled `Couldn't Change the Schedule` with the error.
@@ -715,10 +715,10 @@ Form (.grouped), width 420
 
 1. Create the `Store` and load the first page, counts and boards.
 2. Set `scheduleOn = Schedule.isOn`.
-3. **Repoint the schedule.** Only when running from an `.app` bundle (`Bundle.main.bundleURL.pathExtension == "app"`) and using the default data folder: if the agent exists and its program is no longer an executable file, call `Schedule.set(on: true)`. On first launch this moved the user's agent from the Go binary to the app. Since the review of 2026-11-18, a working agent is never taken over, so opening `build/stash.app` leaves the installed app's schedule alone.
+3. **Repoint the schedule.** Only when running from an `.app` bundle (`Bundle.main.bundleURL.pathExtension == "app"`) and using the default data folder: if the agent exists and its program is no longer an executable file, call `Schedule.set(on: true)`. On first launch this moved the user's agent from the Go binary to the app. Since the review of 2026-11-18, a working agent is never taken over, so opening `build/Kaleidostash.app` leaves the installed app's schedule alone.
 
    Never do this from `swift run` or a test build, which would point launchd at a build folder.
-4. Apply `STASH_UI` if set.
+4. Apply `KALEIDOSTASH_UI` if set.
 
 ### Empty states
 
@@ -756,14 +756,14 @@ Remove the default New Window item with `CommandGroup(replacing: .newItem) {}`.
 
 These are read only when the variable is set. They replace the Go version's `XSAVES_EVAL` for driving the UI in checks.
 
-- `STASH_UI`: a JSON object with any of these keys:
+- `KALEIDOSTASH_UI`: a JSON object with any of these keys:
   - `sidebar`: `"all"`, `"bookmarks"`, `"likes"` or `"board:<name>"`;
   - `search`: a string;
   - `select`: a post ID;
   - `inspector`: a boolean.
 
   Applied after the first load.
-- `STASH_SNAPSHOT=<path.png>`: two seconds after the first load and any `STASH_UI` state, write the main window's content to the path as a PNG (`bitmapImageRepForCachingDisplay` + `cacheDisplay`), then quit. Video frames and glass may not render in this capture.
+- `KALEIDOSTASH_SNAPSHOT=<path.png>`: two seconds after the first load and any `KALEIDOSTASH_UI` state, write the main window's content to the path as a PNG (`bitmapImageRepForCachingDisplay` + `cacheDisplay`), then quit. Video frames and glass may not render in this capture.
 
   For a true screenshot, `screencapture -l <windowNumber> -o out.png` works if the terminal has Screen Recording permission. Get the window number from `CGWindowListCopyWindowInfo` by matching the process ID.
 
@@ -776,9 +776,9 @@ These are read only when the variable is set. They replace the Go version's `XSA
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
 	<key>CFBundleIdentifier</key><string>com.xsaves.app</string>
-	<key>CFBundleName</key><string>stash</string>
-	<key>CFBundleDisplayName</key><string>stash</string>
-	<key>CFBundleExecutable</key><string>stash</string>
+	<key>CFBundleName</key><string>Kaleidostash</string>
+	<key>CFBundleDisplayName</key><string>Kaleidostash</string>
+	<key>CFBundleExecutable</key><string>Kaleidostash</string>
 	<key>CFBundlePackageType</key><string>APPL</string>
 	<key>CFBundleShortVersionString</key><string>1.0</string>
 	<key>CFBundleVersion</key><string>1</string>
@@ -793,26 +793,26 @@ These are read only when the variable is set. They replace the Go version's `XSA
 
 ```sh
 #!/bin/sh
-# Builds build/stash.app from the Swift package. With --install, copies it to ~/Applications.
+# Builds build/Kaleidostash.app from the Swift package. With --install, copies it to ~/Applications.
 set -eu
 cd "$(dirname "$0")/.."
-swift build -c release --product stash
-app=build/stash.app
+swift build -c release --product Kaleidostash
+app=build/Kaleidostash.app
 rm -rf "$app"
 mkdir -p "$app/Contents/MacOS"
-cp .build/release/stash "$app/Contents/MacOS/stash"
+cp .build/release/Kaleidostash "$app/Contents/MacOS/Kaleidostash"
 cp Resources/Info.plist "$app/Contents/Info.plist"
 codesign --force --sign - "$app"
 if [ "${1:-}" = "--install" ]; then
   mkdir -p "$HOME/Applications"
-  rm -rf "$HOME/Applications/stash.app"
-  cp -R "$app" "$HOME/Applications/stash.app"
+  rm -rf "$HOME/Applications/Kaleidostash.app"
+  cp -R "$app" "$HOME/Applications/Kaleidostash.app"
 fi
 echo "$app"
 ```
 
 - Add `/.build/` and `/build/` to `.gitignore`.
-- The installed app lives at `~/Applications/stash.app`. The launchd agent points inside it, so reinstalling at the same path keeps the schedule working. Quit the app before reinstalling.
+- The installed app lives at `~/Applications/Kaleidostash.app`. The launchd agent points inside it, so reinstalling at the same path keeps the schedule working. Quit the app before reinstalling.
 - The app isn't sandboxed and needs no entitlements. It talks only to `x.com`, `pbs.twimg.com` and `video.twimg.com` over HTTPS.
 
 ## Milestones
@@ -849,35 +849,35 @@ Use a copy of the archive except where the table says live.
 | Check | How | Pass |
 |---|---|---|
 | Build and tests | `swift build`, `swift test`, `scripts/bundle.sh` | All succeed with no warnings about concurrency |
-| Archive opens | Bundled app with `STASH_DIR` pointing at the copy | Sidebar counts equal `sqlite3` counts on the copy |
+| Archive opens | Bundled app with `KALEIDOSTASH_DIR` pointing at the copy | Sidebar counts equal `sqlite3` counts on the copy |
 | Grid | Scroll All Saves to the end | Every post loads once, with no duplicates or gaps (count equals the subtitle). No visible stutter. Memory stays under 1.5 GB (Activity Monitor) |
 | Search | Type `swift`, then a word that matches nothing | Results within about 300 ms of pausing; the no-results screen appears (07) |
 | Inspector | Select a photo post, a multi-photo post, a video, a GIF, a post with a quoted post, a post with a link | Each matches screen 08's structure. The video plays with sound, the GIF loops muted, ← → page through items, the link opens in the default browser, Open on X opens the right post |
 | Boards | Create `Test`, tick 3 posts, filter by it, untick one, delete it | Counts update, the filter shows the right posts, the confirmation appears, posts remain saved after deleting |
-| Empty archive | `STASH_DIR` pointing at an empty temporary folder | Screen 06. Sync button present |
+| Empty archive | `KALEIDOSTASH_DIR` pointing at an empty temporary folder | Screen 06. Sync button present |
 | Dark appearance | Switch the system to dark | Matches screen 02 with no hard-coded colors |
 | Live sync, signed out | User present. First Sync from the window | The `Sign in to X` window appears. After the user signs in it disappears, bookmarks then likes load, and the toolbar shows progress |
 | Live sync, nothing new | Sync again | Finishes in about 10 s, with no alert |
-| Background sync, signed out | Before the user's first sign-in in the new app (its web storage starts empty), run `~/Applications/stash.app/Contents/MacOS/stash sync` with `STASH_DIR` pointing at an empty temporary folder | Exits 1 within a few seconds with `Sign in to X: press Sync in the stash window.` |
-| Lock | Start a sync, then press Sync again or run `stash sync` | `A sync is already running.` |
+| Background sync, signed out | Before the user's first sign-in in the new app (its web storage starts empty), run `~/Applications/Kaleidostash.app/Contents/MacOS/Kaleidostash sync` with `KALEIDOSTASH_DIR` pointing at an empty temporary folder | Exits 1 within a few seconds with `Sign in to X: press Sync in the Kaleidostash window.` |
+| Lock | Start a sync, then press Sync again or run `Kaleidostash sync` | `A sync is already running.` |
 | Media | After a live sync with new posts | New files appear under `media/` and their rows have `done = 1` |
-| Schedule | Toggle off and on in Settings | The plist disappears and reappears, `ProgramArguments[0]` is `~/Applications/stash.app/Contents/MacOS/stash`, and `launchctl print gui/<uid>/com.stash.sync` shows it loaded |
+| Schedule | Toggle off and on in Settings | The plist disappears and reappears, `ProgramArguments[0]` is `~/Applications/Kaleidostash.app/Contents/MacOS/Kaleidostash`, and `launchctl print gui/<uid>/com.kaleidostash.sync` shows it loaded |
 | Repointing | First launch of the installed app while the Go agent is installed | The agent now points at the app |
 
 ### Test data
 
-For a fresh stash installation, use the following commands to copy the archive. For a Mosaic or xsaves archive, set `src` to the original archive directory and use its database filename as the source.
+For a fresh Kaleidostash installation, use the following commands to copy the archive. For a stash, Mosaic, or xsaves archive, set `src` to the original archive directory and use its database filename as the source.
 
 ```sh
-src="$HOME/Library/Application Support/stash"
-copy="$(mktemp -d)/stash"
+src="$HOME/Library/Application Support/Kaleidostash"
+copy="$(mktemp -d)/Kaleidostash"
 mkdir -p "$copy"
-sqlite3 -readonly "$src/stash.db" ".backup '$copy/stash.db'"
+sqlite3 -readonly "$src/kaleidostash.db" ".backup '$copy/kaleidostash.db'"
 ln -s "$src/media" "$copy/media"      # read-only use; never run a sync against the copy
-STASH_DIR="$copy" ~/Applications/stash.app/Contents/MacOS/stash
+KALEIDOSTASH_DIR="$copy" ~/Applications/Kaleidostash.app/Contents/MacOS/Kaleidostash
 ```
 
-The media folder is a symlink to avoid copying 16 GB, so never run a sync with `STASH_DIR` pointing at this copy: downloads would write into the real media folder. Live sync checks use the real data folder, with the user present.
+The media folder is a symlink to avoid copying 16 GB, so never run a sync with `KALEIDOSTASH_DIR` pointing at this copy: downloads would write into the real media folder. Live sync checks use the real data folder, with the user present.
 
 ### Gallery revision, 2026-11-18
 

@@ -1,14 +1,14 @@
 import Foundation
 import Testing
-@testable import StashCore
+@testable import KaleidostashCore
 
-@Test(arguments: ["com.stash.sync", "com.mosaic.sync", "com.xsaves.sync"])
+@Test(arguments: ["com.kaleidostash.sync", "com.stash.sync", "com.mosaic.sync", "com.xsaves.sync"])
 func schedule(label: String) throws {
     let folder = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: folder) }
     let executable = folder.appending(path: "x & y")
     let plistURL = folder.appending(path: label + ".plist")
-    if label != "com.stash.sync" {
+    if label != "com.kaleidostash.sync" {
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         let existing = ["Label": label, "ProgramArguments": ["/old/path", "sync"]] as [String: Any]
         try PropertyListSerialization.data(fromPropertyList: existing, format: .xml, options: 0).write(to: plistURL)
@@ -17,7 +17,7 @@ func schedule(label: String) throws {
         if args.first == "bootout" { throw ArchiveError("No existing agent.") }
         #expect(args == ["bootstrap", "gui/\(getuid())", plistURL.path])
     }
-    if label != "com.stash.sync" {
+    if label != "com.kaleidostash.sync" {
         #expect(schedule.isOn && schedule.programPath == "/old/path")
     }
     try schedule.set(on: true)

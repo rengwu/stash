@@ -1,5 +1,5 @@
 import SwiftUI
-import StashCore
+import KaleidostashCore
 
 /// One post in a sheet, laid out like a post on X: the avatar in its own column, then the byline, text, media and quoted post.
 struct PostGalleryView: View {

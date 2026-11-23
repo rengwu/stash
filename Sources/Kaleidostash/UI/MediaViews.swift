@@ -1,6 +1,6 @@
 import SwiftUI
 import AVKit
-import StashCore
+import KaleidostashCore
 
 struct MediaPlayer: NSViewRepresentable {
     let url: URL

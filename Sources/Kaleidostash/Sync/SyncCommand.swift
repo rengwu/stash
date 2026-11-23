@@ -1,6 +1,6 @@
 import AppKit
 import WebKit
-import StashCore
+import KaleidostashCore
 
 func log(_ message: String) {
     FileHandle.standardError.write(Data((message + "\n").utf8))
@@ -20,7 +20,7 @@ func log(_ message: String) {
     private var finishing = false
 
     static func run(login: Bool) throws {
-        guard Bundle.main.bundleURL.pathExtension == "app" else { throw ArchiveError("Run sync from the stash app bundle.") }
+        guard Bundle.main.bundleURL.pathExtension == "app" else { throw ArchiveError("Run sync from the Kaleidostash app bundle.") }
         // The window can quit and close our stdout pipe while sync continues.
         signal(SIGPIPE, SIG_IGN)
         let dir = Paths.dataDir
@@ -47,8 +47,8 @@ func log(_ message: String) {
         let config = WKWebViewConfiguration()
         config.preferences.inactiveSchedulingPolicy = .none
         let bridge = config.userContentController
-        bridge.add(self, contentWorld: .page, name: "stashCapture")
-        bridge.addScriptMessageHandler(self, contentWorld: .page, name: "stashTick")
+        bridge.add(self, contentWorld: .page, name: "kaleidostashCapture")
+        bridge.addScriptMessageHandler(self, contentWorld: .page, name: "kaleidostashTick")
         bridge.addUserScript(WKUserScript(source: InjectScript.source, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page))
         window = SyncWindow(configuration: config)
         window.delegate = self

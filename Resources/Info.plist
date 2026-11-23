@@ -2,13 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
 	<key>CFBundleIdentifier</key><string>com.xsaves.app</string>
-	<key>CFBundleName</key><string>stash</string>
-	<key>CFBundleDisplayName</key><string>stash</string>
-	<key>CFBundleExecutable</key><string>stash</string>
+	<key>CFBundleName</key><string>Kaleidostash</string>
+	<key>CFBundleDisplayName</key><string>Kaleidostash</string>
+	<key>CFBundleExecutable</key><string>Kaleidostash</string>
 	<key>CFBundleIconFile</key><string>AppIcon</string>
 	<key>CFBundlePackageType</key><string>APPL</string>
-	<key>CFBundleShortVersionString</key><string>1.0.0</string>
-	<key>CFBundleVersion</key><string>1</string>
+	<key>CFBundleShortVersionString</key><string>1.0.1</string>
+	<key>CFBundleVersion</key><string>2</string>
 	<key>LSMinimumSystemVersion</key><string>26.0</string>
 	<key>LSApplicationCategoryType</key><string>public.app-category.productivity</string>
 	<key>NSPrincipalClass</key><string>NSApplication</string>

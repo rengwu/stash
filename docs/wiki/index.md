@@ -1,12 +1,12 @@
 ---
-title: stash
-updated: 2026-11-20
+title: Kaleidostash
+updated: 2026-11-23
 ---
-# stash
+# Kaleidostash
 
-![stash icon](attachments/app-icon/icon-128.png)
+![Kaleidostash icon](attachments/app-icon/icon-128.png)
 
-stash is a native SwiftUI app that archives X bookmarks, likes, and their media on the Mac. The installed app syncs every six hours.
+Kaleidostash is a native SwiftUI app that archives X bookmarks, likes, and their media on the Mac. The installed app syncs every six hours.
 
 ## Planning
 

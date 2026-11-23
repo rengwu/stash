@@ -41,7 +41,7 @@ struct ContentView: View {
         .onChange(of: model.sidebar) { if model.ready { Task { await model.reload() } } }
         .onChange(of: model.search) { model.searchChanged() }
         .alert(model.errorTitle, isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
-            Button("OK") { model.error = nil; model.errorTitle = "stash" }
+            Button("OK") { model.error = nil; model.errorTitle = "Kaleidostash" }
         } message: { Text(model.error ?? "") }
     }
     @ViewBuilder var empty: some View {

@@ -1,5 +1,5 @@
 import Foundation
-import StashCore
+import KaleidostashCore
 
 enum SyncController {
     @MainActor static func run(executable: URL, progress: @escaping @MainActor @Sendable (SyncProgress) -> Void) async throws {

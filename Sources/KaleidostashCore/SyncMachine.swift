@@ -33,7 +33,7 @@ package struct SyncMachine {
         if self.path != path { self.path = path; effects.log = "x.com is showing \(path)" }
         guard signedIn else {
             started = now
-            if !login { effects.error = "Sign in to X: press Sync in the stash window." }
+            if !login { effects.error = "Sign in to X: press Sync in the Kaleidostash window." }
             else if !shown {
                 shown = true
                 effects.visible = true

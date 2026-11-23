@@ -1,5 +1,5 @@
 import SwiftUI
-import StashCore
+import KaleidostashCore
 
 enum SidebarItem: Hashable {
     case all, bookmarks, likes, board(Int64)
@@ -18,7 +18,7 @@ enum SidebarItem: Hashable {
     var loading = false
     var reachedEnd = false
     var error: String?
-    var errorTitle = "stash"
+    var errorTitle = "Kaleidostash"
     var scheduleError: String?
     var scheduleOn = false
     var scheduling = false

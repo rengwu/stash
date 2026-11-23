@@ -9,19 +9,19 @@ let testSettings: [SwiftSetting] = FileManager.default.fileExists(atPath: testin
     : []
 
 let package = Package(
-    name: "stash",
+    name: "Kaleidostash",
     platforms: [.macOS(.v26)],
     targets: [
         .target(
-            name: "StashCore",
+            name: "KaleidostashCore",
             linkerSettings: [.linkedLibrary("sqlite3")]
         ),
         .executableTarget(
-            name: "stash",
-            dependencies: ["StashCore"],
-            path: "Sources/stash",
+            name: "Kaleidostash",
+            dependencies: ["KaleidostashCore"],
+            path: "Sources/Kaleidostash",
             linkerSettings: [.linkedFramework("AVKit"), .linkedFramework("WebKit")]
         ),
-        .testTarget(name: "StashCoreTests", dependencies: ["StashCore"], swiftSettings: testSettings),
+        .testTarget(name: "KaleidostashCoreTests", dependencies: ["KaleidostashCore"], swiftSettings: testSettings),
     ]
 )

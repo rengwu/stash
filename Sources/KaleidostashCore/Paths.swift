@@ -1,11 +1,11 @@
 import Foundation
 
 package enum Paths {
-    private static let archiveNames = ["stash", "mosaic", "xsaves"]
+    private static let archiveNames = ["Kaleidostash", "stash", "mosaic", "xsaves"]
 
     package static var dataDirOverride: String? {
         let env = ProcessInfo.processInfo.environment
-        return [env["STASH_DIR"], env["MOSAIC_DIR"], env["XSAVES_DIR"]].compactMap { $0 }.first { !$0.isEmpty }
+        return [env["KALEIDOSTASH_DIR"], env["STASH_DIR"], env["MOSAIC_DIR"], env["XSAVES_DIR"]].compactMap { $0 }.first { !$0.isEmpty }
     }
 
     package static var dataDir: URL {
@@ -20,15 +20,15 @@ package enum Paths {
             let dir = applicationSupport.appending(path: name)
             if existingDatabase(in: dir) != nil { return dir }
         }
-        return applicationSupport.appending(path: "stash")
+        return applicationSupport.appending(path: "Kaleidostash")
     }
 
     static func databaseURL(in dir: URL) -> URL {
-        existingDatabase(in: dir) ?? dir.appending(path: "stash.db")
+        existingDatabase(in: dir) ?? dir.appending(path: "kaleidostash.db")
     }
 
     private static func existingDatabase(in dir: URL) -> URL? {
-        archiveNames.lazy.map { dir.appending(path: $0 + ".db") }
+        archiveNames.lazy.map { dir.appending(path: $0.lowercased() + ".db") }
             .first { FileManager.default.fileExists(atPath: $0.path) }
     }
 

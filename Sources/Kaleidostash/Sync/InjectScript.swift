@@ -5,15 +5,15 @@ enum InjectScript {
 (() => {
   if (window.top !== window || !/(^|\.)x\.com$/.test(location.hostname)) return;
 
-  const stashCapture = (op, status, body) => window.webkit.messageHandlers.stashCapture.postMessage({op, status, body});
-  const stashTick = (path, handle, signedIn) => window.webkit.messageHandlers.stashTick.postMessage({path, handle, signedIn});
+  const kaleidostashCapture = (op, status, body) => window.webkit.messageHandlers.kaleidostashCapture.postMessage({op, status, body});
+  const kaleidostashTick = (path, handle, signedIn) => window.webkit.messageHandlers.kaleidostashTick.postMessage({path, handle, signedIn});
 
   const timeline = /\/graphql\/[^/]+\/(Bookmarks|Likes)\b/;
 
   const open = XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.open = function (method, url) {
     const m = timeline.exec(String(url));
-    if (m) this.addEventListener('load', () => stashCapture(m[1], this.status, this.responseText));
+    if (m) this.addEventListener('load', () => kaleidostashCapture(m[1], this.status, this.responseText));
     return open.apply(this, arguments);
   };
 
@@ -21,7 +21,7 @@ enum InjectScript {
   window.fetch = async function (input) {
     const res = await fetch_.apply(this, arguments);
     const m = timeline.exec(String(input && input.url || input));
-    if (m) res.clone().text().then(body => stashCapture(m[1], res.status, body));
+    if (m) res.clone().text().then(body => kaleidostashCapture(m[1], res.status, body));
     return res;
   };
 
@@ -30,7 +30,7 @@ enum InjectScript {
     const profile = document.querySelector('a[data-testid="AppTabBar_Profile_Link"]');
     // X sets the twid cookie only for a signed-in account.
     const signedIn = !!profile || /(^|; )twid=/.test(document.cookie);
-    const action = await stashTick(location.pathname, profile ? profile.getAttribute('href').slice(1) : '', signedIn);
+    const action = await kaleidostashTick(location.pathname, profile ? profile.getAttribute('href').slice(1) : '', signedIn);
     if (action.go) location.href = action.go;
     else if (action.scroll) {
       // Step back before going to the bottom: x.com loads the next page on

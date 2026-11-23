@@ -9,8 +9,8 @@ package struct Schedule: Sendable {
                   executable: Bundle.main.executableURL!, dataDir: Paths.dataDir, run: Self.launchctl)
     }
     init(folder: URL, executable: URL, dataDir: URL, run: @escaping Runner) {
-        let current = folder.appending(path: "com.stash.sync.plist")
-        let previous = ["com.xsaves.sync.plist", "com.mosaic.sync.plist"].map { folder.appending(path: $0) }
+        let current = folder.appending(path: "com.kaleidostash.sync.plist")
+        let previous = ["com.stash.sync.plist", "com.xsaves.sync.plist", "com.mosaic.sync.plist"].map { folder.appending(path: $0) }
         plist = ([current] + previous).first { FileManager.default.fileExists(atPath: $0.path) } ?? current
         self.executable = executable
         self.dataDir = dataDir

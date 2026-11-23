@@ -4,11 +4,11 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 }
 
-struct StashApp: App {
+struct KaleidostashApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     private let model = AppModel()
     var body: some Scene {
-        Window("stash", id: "main") { ContentView(model: model) }
+        Window("Kaleidostash", id: "main") { ContentView(model: model) }
             .defaultSize(width: 1200, height: 860)
             .commands {
                 CommandGroup(replacing: .newItem) {

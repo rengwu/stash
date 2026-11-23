@@ -1,5 +1,5 @@
 import SwiftUI
-import StashCore
+import KaleidostashCore
 
 @main
 enum Entry {
@@ -7,10 +7,10 @@ enum Entry {
         let arguments = Array(CommandLine.arguments.dropFirst().filter { !$0.hasPrefix("-psn_") })
         do {
             switch arguments {
-            case []: StashApp.main()
+            case []: KaleidostashApp.main()
             case ["sync"], ["sync", "--login"]: try SyncCommand.run(login: arguments.count == 2)
             case ["schedule", "on"], ["schedule", "off"]: try Schedule().set(on: arguments[1] == "on")
-            default: throw ArchiveError("usage: stash [sync [--login] | schedule on|off]")
+            default: throw ArchiveError("usage: Kaleidostash [sync [--login] | schedule on|off]")
             }
         } catch {
             if arguments.first == "sync" {

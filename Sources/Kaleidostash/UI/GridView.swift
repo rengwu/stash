@@ -1,5 +1,5 @@
 import SwiftUI
-import StashCore
+import KaleidostashCore
 
 struct GridView: View {
     let model: AppModel

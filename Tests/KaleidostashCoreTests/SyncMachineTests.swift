@@ -1,10 +1,10 @@
 import Foundation
 import Testing
-@testable import StashCore
+@testable import KaleidostashCore
 
 @Test func signIn() {
     var background = SyncMachine(login: false)
-    #expect(background.tick(path: "/login", handle: "", signedIn: false).error == "Sign in to X: press Sync in the stash window.")
+    #expect(background.tick(path: "/login", handle: "", signedIn: false).error == "Sign in to X: press Sync in the Kaleidostash window.")
     var interactive = SyncMachine(login: true)
     let first = interactive.tick(path: "/login", handle: "", signedIn: false)
     #expect(first.visible == true && first.go == "https://x.com/i/flow/login")
